@@ -765,6 +765,15 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .tc-sk span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .tc-sk b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-sk small{font-size:12.5px;color:var(--ink-3)}
+/* research ideas */
+.idea{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;border-radius:10px;background:var(--accent-soft);padding:9px 11px;min-width:0;color:var(--ink)}
+.idea:hover{filter:brightness(.97)}
+.idea b{font-weight:600;font-size:13.5px}
+.idea small{font-size:12px;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.idea.done{background:var(--fill-2)}
+.idea.done b{color:var(--ink-2)}
+.idea-hint{margin:0 4px 4px;font-size:12.5px;color:var(--ink-3);line-height:1.4}
+.tpl.ideas{gap:6px}
 /* sidebar group label */
 .side-sec .eyebrow.grp{padding-top:4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -1722,12 +1731,64 @@ function researchShell() {
         <button class="btn sm ghost" style="justify-content:flex-start" data-act="new-note" data-tpl="competitor">Rakip analizi</button>
         <button class="btn sm ghost" style="justify-content:flex-start" data-act="new-note" data-tpl="material">Malzeme ve üretim</button>
       </div>
+      <div class="tpl ideas" id="ideas"></div>
     </div>
     <div id="editorHost"></div>
   </div>`;
 }
+/* Research ideas: Claude suggests what to research from the brief, the current stage and the
+   critiques; each idea becomes a ready-to-fill document like a template. */
+function renderIdeas() {
+  const box = $("#ideas"), p = proj(); if (!box || !p) return;
+  const list = (p.ideas && p.ideas.list) || [], busy = S.ideasBusy === p.id;
+  box.innerHTML = `<div class="eyebrow">Ne araştırabilirim?</div>
+    ${list.length ? list.map(i => `<button class="idea${i.done ? " done" : ""}" data-act="idea-note" data-id="${i.id}" title="${esc(i.why)}"><b>${i.done ? "✓ " : ""}${esc(i.t)}</b><small>${esc(i.why)}</small></button>`).join("")
+      : `<p class="idea-hint">Brief'ine, projenin aşamasına ve aldığın kritiklere göre araştırma konuları önerir. Birine dokununca hazır bir belge açılır.</p>`}
+    ${SAMPLE ? `<button class="btn sm" data-act="ideas-make" ${busy ? "disabled" : ""} style="justify-content:flex-start">${ICON.spark}${busy ? "Hazırlanıyor…" : list.length ? "Yeni öneriler al" : "Öneri al"}</button>` : ""}`;
+}
+async function makeIdeas() {
+  const p = proj(); if (!p || !SAMPLE || S.ideasBusy) return;
+  const crits = itemsOf("crit").sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 6);
+  if (!(p.brief || "").trim() && !crits.length) { toast("Önce Plan sekmesine brief'i ekle ya da bir kritik kaydet; öneriler onlara göre çıkar."); return; }
+  const notes = itemsOf("note").map(n => n.title).filter(Boolean);
+  const sn = p.stageNotes || {};
+  const prompt = `Bir endüstriyel tasarım öğrencisinin projesi için araştırma konuları öner.
+Proje: ${p.name || "-"}${p.course ? ` (${p.course})` : ""}
+Şu anki aşama: ${stageName(curStage(p))}
+Brief: """${(p.brief || "(yok)").slice(0, 1800)}"""
+${Object.keys(sn).some(k => sn[k]) ? `Aşama notları: ${PSTAGES.filter(([k]) => sn[k]).map(([k, l]) => `${l}: ${sn[k]}`).join(" / ").slice(0, 600)}\n` : ""}${crits.length ? `Hocadan / jüriden aldığı kritikler (yeniden eskiye):\n${crits.map(c => `- [${c.date}] ${c.text || c.shown || ""}${(c.actions || []).length ? " | Yapılacaklar: " + c.actions.map(a => a.t).join("; ") : ""}`).join("\n").slice(0, 2000)}\n` : ""}${notes.length ? `Zaten açtığı araştırma belgeleri (bunları tekrarlama): ${notes.join(", ")}\n` : ""}
+Projenin bu aşamasında en çok işine yarayacak 4 araştırma konusu öner. Kritiklerde geçen sorunları önceliklendir. Her konu somut ve bir haftada yapılabilir olsun (kullanıcı gözlemi, görüşme, rakip/benzer ürün incelemesi, malzeme-üretim, ergonomi-ölçü, bağlam gibi farklı yöntemler karıştır). Türkçe yaz ve TAM OLARAK şu biçimi kullan, başka hiçbir şey yazma:
+
+### <kısa konu başlığı, en fazla 6 kelime>
+Neden: <bu projede neden önemli; brief'e ya da kritiğe bağla, tek cümle>
+Nasıl: <yöntem ve ilk adım, tek cümle>
+Sorular: <soru 1> | <soru 2> | <soru 3>`;
+  S.ideasBusy = p.id; renderIdeas();
+  try {
+    const r = await SAMPLE(prompt, { cache: false });
+    const list = r.text.split(/^#{2,4}\s+/m).slice(1).map(block => {
+      const lines = block.trim().split(/\r?\n/), get = k => (lines.find(l => new RegExp("^\\**" + k + "\\**\\s*:", "i").test(l.trim())) || "").replace(/^[^:]*:\s*/, "").replace(/\*\*/g, "").trim();
+      return { id: rid(), t: lines[0].replace(/\*\*/g, "").trim().slice(0, 80), why: get("Neden"), how: get("Nasıl"), qs: get("Sorular").split("|").map(s => s.trim()).filter(Boolean), done: false };
+    }).filter(i => i.t).slice(0, 6);
+    if (!list.length) { toast("Cevap beklenen biçimde değil; tekrar dene."); return; }
+    await updateProject(p.id, { ideas: { at: now(), list } });
+  } catch (e) { const m = aiErr(e, "Öneri alınamadı. Tekrar dene."); if (m) toast(m); }
+  finally { S.ideasBusy = null; renderIdeas(); }
+}
+async function ideaNote(iid) {
+  const p = proj(); if (!p || !p.ideas) return;
+  const i = p.ideas.list.find(x => x.id === iid); if (!i) return;
+  if (i.noteId && S.items.some(n => n.id === i.noteId)) { openNote(i.noteId); renderNotes(); return; }
+  const html = `<h1>${esc(i.t)}</h1>${i.why ? `<p><b>Neden önemli:</b> ${esc(i.why)}</p>` : ""}${i.how ? `<h2>Nasıl araştıracağım</h2><p>${esc(i.how)}</p>` : ""}<h2>Cevaplamak istediğim sorular</h2><ol>${(i.qs.length ? i.qs : ["…"]).map(q => `<li>${esc(q)}</li>`).join("")}</ol><h2>Bulgular</h2><p>…</p><h2>Tasarımıma etkisi</h2><p>Bu bulgular eskizlerimde neyi değiştiriyor?</p>`;
+  const id = rid(); const doc = { kind: "note", phase: curStage(p), title: i.t, html, createdAt: now(), updatedAt: now() };
+  S.items.push({ id, ...doc });
+  try { await itemDoc(p.id, id).set(doc); } catch { toast("Belge oluşturulamadı."); return; }
+  await updateProject(p.id, { ideas: { ...p.ideas, list: p.ideas.list.map(x => x.id === iid ? { ...x, done: true, noteId: id } : x) } });
+  renderNotes(); openNote(id); renderNotes();
+}
 function renderNotes() {
   const list = $("#noteList"); if (!list) return;
+  renderIdeas();
   const notes = itemsOf("note");
   list.innerHTML = notes.length ? notes.map(n => `<button class="note-btn" data-act="open-note" data-id="${n.id}" aria-current="${S.openNote === n.id}"><b>${esc(n.title || "Adsız belge")}</b><span>${fmtDate(n.updatedAt || n.createdAt || now())}</span></button>`).join("")
     : `<div class="ai-note" style="padding:6px 4px">Henüz belge yok.</div>`;
@@ -2876,6 +2937,8 @@ const ACT = {
   "img-ai": () => imageBridge({ pid: S.route.pid }),
   "sk-iter": el => newIteration(el.dataset.id),
   "paper-sketch": () => $("#paperPick")?.click(),
+  "ideas-make": () => makeIdeas(),
+  "idea-note": el => ideaNote(el.dataset.id),
   "open-last-sketch": () => { const s = LAST.sk; if (!s) return; go({ view: "project", pid: s.pid, tab: "eskiz" }); if (S.items.some(i => i.id === s.id)) openSketch(s.id); else S.openAfter = s.id; },
   "prac-start": el => startPractice(el.dataset.ex),
   "crit-new": () => { const w = $("#critNew"); if (!w) return; S.editCrit = null; w.innerHTML = critFormHTML(); w.hidden = false; renderCrits(); setTimeout(() => $("#cfText")?.focus(), 30); },
