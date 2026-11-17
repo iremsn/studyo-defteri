@@ -742,6 +742,31 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .mx tfoot th,.mx tfoot td{border-top:1px solid var(--line-2)}
 .doc blockquote{border-left-color:var(--accent)}
 :focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
+/* "Bugün" widgets */
+.today{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.today{grid-template-columns:minmax(0,1fr)}}
+.tcard{background:var(--surface);border-radius:var(--r-card);box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0;min-height:170px}
+.tcard p{margin:0;font-size:14px;line-height:1.45}
+.tc-h{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--ink-2)}
+.tc-ic{width:26px;height:26px;border-radius:7px;background:var(--c);color:#fff;display:grid;place-items:center;flex:none}
+.tc-ic svg{width:16px;height:16px}
+.tc-big{font:700 34px/1 var(--f-display);letter-spacing:-.02em}
+.tc-big small{font:500 15px var(--f-body);color:var(--ink-2);letter-spacing:0}
+.tc-act{margin-top:auto;display:flex;gap:8px}
+.tlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.tlist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);min-width:0}
+.tlist li:last-child{border-bottom:0}
+.tlist .t{flex:1;min-width:0;overflow-wrap:anywhere;font-size:14.5px}
+.tlist small{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-3);margin-top:2px}
+.tlist small i{width:7px;height:7px;border-radius:2px;flex:none}
+.tc-more{font-size:12.5px!important}
+.tc-sk{display:flex;gap:12px;align-items:center;border:0;background:transparent;padding:0;text-align:left;min-width:0;color:var(--ink)}
+.tc-sk img{width:120px;aspect-ratio:297/210;object-fit:cover;border-radius:10px;box-shadow:var(--shadow);background:#fff;flex:none}
+.tc-sk span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tc-sk b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tc-sk small{font-size:12.5px;color:var(--ink-3)}
+/* sidebar group label */
+.side-sec .eyebrow.grp{padding-top:4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -753,8 +778,19 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
     <div class="side-sec">
       <button class="nav-btn" data-act="home" id="navHome">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
-        <span class="lbl">Ana sayfa</span>
+        <span class="lbl">Bugün</span>
       </button>
+    </div>
+    <div class="side-sec">
+      <div class="eyebrow">Projeler</div>
+      <div id="sideProjects"></div>
+      <button class="nav-btn" data-act="new-project" style="color:var(--accent)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="lbl">Yeni proje</span>
+      </button>
+    </div>
+    <div class="side-sec">
+      <div class="eyebrow">Gelişim</div>
       <button class="nav-btn" data-act="crits" id="navCrits">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>
         <span class="lbl">Kritikler</span>
@@ -767,20 +803,12 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6M9 11h4"/></svg>
         <span class="lbl">Öğrendiklerim</span>
       </button>
-      <button class="nav-btn" data-act="settings" id="navSet">
+    </div>
+    <div class="side-foot">
+      <button style="margin:0 -6px;width:calc(100% + 12px)" class="nav-btn" data-act="settings" id="navSet">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
         <span class="lbl">Ayarlar</span>
       </button>
-    </div>
-    <div class="side-sec">
-      <div class="eyebrow">Projeler</div>
-      <div id="sideProjects"></div>
-      <button class="nav-btn" data-act="new-project" style="color:var(--accent)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-        <span class="lbl">Yeni proje</span>
-      </button>
-    </div>
-    <div class="side-foot">
       <div class="sync" id="syncState"><i></i><span>Bağlanıyor…</span></div>
     </div>
   </aside>
@@ -1236,14 +1264,15 @@ function subscribeItems(pid) {
 const PSTAGES = [["arastirma", "Araştırma"], ["konsept", "Konsept"], ["gelistirme", "Geliştirme"], ["maket", "Maket"], ["final", "Final"]];
 const stageName = k => (PSTAGES.find(s => s[0] === k) || [, ""])[1];
 const curStage = p => (p && p.stage) || "arastirma";
-const TABS = [["plan", "Plan"], ["surec", "Süreç"], ["eskiz", "Eskizler"], ["arastirma", "Araştırma"], ["pano", "Pano"], ["matris", "Matris"], ["kritik", "Kritikler"]];
+const TABS = [["plan", "Plan"], ["eskiz", "Eskizler"], ["arastirma", "Araştırma"], ["kritik", "Kritikler"]];
+const TAB_ALIAS = { surec: "plan", gorev: "plan", matris: "eskiz", pano: "arastirma" }; // old links keep working
 function parseHash() {
   if (location.hash === "#kritikler") return { view: "crits" };
   if (location.hash === "#alistirma") return { view: "practice" };
   if (location.hash === "#ayarlar") return { view: "settings" };
   if (location.hash === "#ogrenme") return { view: "learn" };
   const m = location.hash.match(/^#p-([a-z0-9]+)(?:-(plan|surec|eskiz|matris|arastirma|pano|kritik|gorev))?$/);
-  return m ? { view: "project", pid: m[1], tab: !m[2] || m[2] === "gorev" ? "plan" : m[2] } : { view: "home" };
+  return m ? { view: "project", pid: m[1], tab: !m[2] ? "plan" : TAB_ALIAS[m[2]] || m[2] } : { view: "home" };
 }
 function go(route, push = true) {
   S.route = route;
@@ -1277,11 +1306,13 @@ function onProjects() {
   if (!p) { go({ view: "home" }); return; }
   if (!$("#ptitle") ) { mountMain(); return; }
   fillHeader(p); updateTabCounts();
-  if (S.route.tab === "plan") renderPlan();
-  if (S.route.tab === "surec") renderProcess();
-  if (S.route.tab === "matris") renderMatrix();
+  if (S.route.tab === "plan") { renderPlan(); renderProcess(); }
+  if (S.route.tab === "eskiz") renderMatrix();
 }
-function onItems() { if (S.route.view !== "project") return; updateTabCounts(); refreshTab(); syncCounts(); }
+function onItems() {
+  if (S.route.view !== "project") return; updateTabCounts(); refreshTab(); syncCounts();
+  if (S.openAfter && S.items.some(i => i.id === S.openAfter)) { const id = S.openAfter; S.openAfter = null; if (!SK) openSketch(id); }
+}
 function mountMain() {
   if (!S.ready) return;
   if (S.route.view === "home") { $("#view").innerHTML = homeHTML(); return; }
@@ -1317,13 +1348,58 @@ function homeHTML() {
       <div class="row"><button class="btn primary" data-act="new-project">${ICON.plus}Yeni proje</button><button class="btn" data-act="sample-project">Örnek projeyle başla</button></div>
     </div>`;
   }
-  const tasks = allOpenTasks().slice(0, 8);
-  const tasksHTML = tasks.length ? tasks.map(t => `<li class="task"><input type="checkbox" class="chk" data-act="toggle-task" data-pid="${t.pid}" data-tid="${t.id}" aria-label="Tamamlandı olarak işaretle"><span class="t">${esc(t.t)}</span><span class="tproj"><i style="background:${esc(t.pcolor || COLORS[0])}"></i>${esc(t.pname || "")}</span>${dueLabel(t.due)}</li>`).join("")
-    : `<li class="empty-row">Açık görev yok. Proje sayfasındaki Görevler sekmesinden ekleyebilirsin.</li>`;
+  subscribePractice(); subscribeLearn(); loadLastSketch();
+  const tasks = allOpenTasks().slice(0, 4), more = allOpenTasks().length - tasks.length;
+  const tasksHTML = tasks.length ? `<ul class="tlist">${tasks.map(t => `<li><input type="checkbox" class="chk" data-act="toggle-task" data-pid="${t.pid}" data-tid="${t.id}" aria-label="Tamamlandı olarak işaretle"><span class="t">${esc(t.t)}<small><i style="background:${esc(t.pcolor || COLORS[0])}"></i>${esc(t.pname || "")}</small></span>${dueLabel(t.due)}</li>`).join("")}</ul>${more > 0 ? `<p class="muted tc-more">+${more} iş daha, projelerin Plan sekmesinde</p>` : ""}`
+    : `<p class="muted">Açık iş yok. Bir projenin Plan sekmesinden ekleyebilir ya da Claude'a plan çıkarttırabilirsin.</p>`;
   const cards = S.projects.slice().sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999")).map(projectCard).join("");
   return `${banner}<div class="page-head"><div><div class="eyebrow">${esc(dateStr)}</div><h1>${greet}</h1></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="export-all" title="Tüm projeleri klasörlenmiş bir .zip olarak indir">${ICON.dl}Tümünü indir</button><button class="btn primary" data-act="new-project">${ICON.plus}Yeni proje</button></div></div>
-  <section class="sec"><div class="sec-head"><h2>Sıradaki işler</h2><span class="eyebrow">Teslim tarihine göre</span></div><ul class="tasklist">${tasksHTML}</ul></section>
+  <section class="sec" style="margin-top:0"><div class="sec-head"><h2>Bugün</h2></div><div class="today">
+    <article class="tcard tc-tasks"><div class="tc-h"><span class="tc-ic" style="--c:var(--accent)">${ICON_CAL}</span>Sıradaki işler</div>${tasksHTML}</article>
+    <article class="tcard" id="tcSketch">${todaySketchHTML()}</article>
+    <article class="tcard" id="tcPrac">${todayPracHTML()}</article>
+    <article class="tcard" id="tcLearn">${todayLearnHTML()}</article>
+  </div></section>
   <section class="sec"><div class="sec-head"><h2>Projeler</h2><span class="eyebrow">${S.projects.length} proje</span></div><div class="pgrid">${cards}<button class="pcard new" data-act="new-project">${ICON.plus}<span>Yeni proje</span></button></div></section>`;
+}
+/* "Bugün" cards: each one shows one next step, nothing more. */
+function todayPracHTML() {
+  const head = `<div class="tc-h"><span class="tc-ic" style="--c:#2F8A55"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 18L19 5"/><ellipse cx="14" cy="16" rx="6" ry="3"/></svg></span>Günün alıştırması</div>`;
+  if (!PRAC.loaded) return head + `<p class="muted">Yükleniyor…</p>`;
+  const done = PRAC.sessions.some(s => s.date === todayISO()), st = streakDays();
+  const week = Date.now() - 7 * 864e5;
+  const pick = Object.keys(EX).sort((a, b) => PRAC.sessions.filter(s => s.ex === a && (s.createdAt || 0) >= week).length - PRAC.sessions.filter(s => s.ex === b && (s.createdAt || 0) >= week).length)[0];
+  return head + `<div class="tc-big">${st}<small> gün üst üste</small></div>
+    <p class="muted">${done ? "Bugünkü alıştırmanı yaptın. İstersen bir tur daha." : `Bugün için öneri: <b style="color:var(--ink)">${EX[pick].name}</b>. Bu hafta en az bunu çalıştın.`}</p>
+    <div class="tc-act"><button class="btn ${done ? "" : "primary"} sm" data-act="prac-start" data-ex="${pick}">${done ? "Bir tur daha" : "10 dk başla"}</button></div>`;
+}
+function todayLearnHTML() {
+  const head = `<div class="tc-h"><span class="tc-ic" style="--c:#C29A0E"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6M9 11h4"/></svg></span>Bu hafta öğrendiklerim</div>`;
+  const wk = weekStartISO(Date.now()), list = LEARN.cards.filter(c => weekStartISO(c.createdAt || 0) === wk);
+  return head + (list.length ? `<div class="tc-big">${list.length}<small> kavram</small></div><p class="muted">${list.slice(0, 3).map(c => esc(c.t)).join(" · ")}</p>`
+    : `<p class="muted">Bu hafta henüz kavram yok. Bir kritikten ya da Claude'un sorularından öğrendiğini kendi cümlenle yaz.</p>`)
+    + `<div class="tc-act"><button class="btn sm" data-act="learn">${list.length ? "Hepsini gör" : "Kavram ekle"}</button></div>`;
+}
+const LAST = { sk: null, loading: false, at: 0 };
+async function loadLastSketch() {
+  if (LAST.loading || Date.now() - LAST.at < 3000) return; LAST.loading = true;
+  let best = null;
+  await Promise.all(S.projects.map(async p => {
+    let docs = [];
+    if (S.itemsPid === p.id) docs = S.items.filter(i => i.kind === "sketch");
+    else { try { const snap = await itemsCol(p.id).where("kind", "==", "sketch").get(); docs = snap.docs.map(d => ({ id: d.id, ...d.data() })); } catch {} }
+    docs.forEach(d => { if (!best || (d.updatedAt || 0) > (best.updatedAt || 0)) best = { ...d, pid: p.id, pname: p.name }; });
+  }));
+  LAST.sk = best; LAST.loading = false; LAST.at = Date.now();
+  const el = $("#tcSketch"); if (el && S.route.view === "home") el.innerHTML = todaySketchHTML();
+}
+function todaySketchHTML() {
+  const head = `<div class="tc-h"><span class="tc-ic" style="--c:#2B63C6">${ICON.pen}</span>Son eskizin</div>`;
+  const s = LAST.sk;
+  if (!s) return head + `<p class="muted">${LAST.at ? "Henüz eskiz yok. Bir projede tablette çiz ya da kâğıttaki eskizinin fotoğrafını ekle." : "Yükleniyor…"}</p>`;
+  const th = s.thumb || quickThumb(s);
+  return head + `<button class="tc-sk" data-act="open-last-sketch">${th ? `<img src="${esc(th)}" alt="">` : ""}<span><b>${esc(s.title || "Eskiz")}</b><small>${esc(s.pname || "")} · ${fmtDate(s.updatedAt || s.createdAt || now())}</small></span></button>
+    <div class="tc-act"><button class="btn sm" data-act="open-last-sketch">Devam et</button></div>`;
 }
 function projectCard(p) {
   const c = p.counts || {}; const tasks = p.tasks || [];
@@ -1365,10 +1441,8 @@ function updateTabCounts() {
   const p = proj(); if (!p) return;
   const set = (k, v) => { const e = $("#n-" + k); if (e) e.textContent = v; };
   set("eskiz", itemsOf("sketch").length || "");
-  set("arastirma", itemsOf("note").length || "");
-  set("pano", itemsOf("image").length || "");
+  set("arastirma", (itemsOf("note").length + itemsOf("image").length) || "");
   set("kritik", itemsOf("crit").length || "");
-  set("matris", ((p.matrix || {}).con || []).length || "");
   const t = p.tasks || []; set("plan", t.length ? `${t.filter(x => x.done).length}/${t.length}` : "");
 }
 const syncCounts = debounce(() => {
@@ -1389,24 +1463,20 @@ function mountTab() {
   document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === tab));
   const selTab = document.querySelector('.tab[aria-selected="true"]'), tabsEl = selTab?.parentElement;
   if (selTab && tabsEl && tabsEl.scrollWidth > tabsEl.clientWidth) tabsEl.scrollLeft = selTab.offsetLeft - (tabsEl.clientWidth - selTab.offsetWidth) / 2;
-  if (tab === "surec") body.innerHTML = `<div id="process"></div>`;
-  if (tab === "matris") body.innerHTML = `<div id="matrix"></div>`;
-  if (tab === "eskiz") body.innerHTML = `<div class="skgrid" id="skgrid"></div><input type="file" accept="image/*" multiple id="paperPick" hidden><span class="uploading" id="paperState" role="status"></span>`;
-  if (tab === "arastirma") { body.innerHTML = researchShell(); S.openNote = null; }
-  if (tab === "pano") body.innerHTML = boardShell();
+  if (tab === "eskiz") body.innerHTML = `<div class="skgrid" id="skgrid"></div><input type="file" accept="image/*" multiple id="paperPick" hidden><span class="uploading" id="paperState" role="status"></span>
+    <section class="sec" id="secMatris"><div class="sec-head"><h2>Konseptleri karşılaştır</h2><span class="eyebrow">Matris</span></div><div id="matrix"></div></section>`;
+  if (tab === "arastirma") { body.innerHTML = researchShell() + `<section class="sec" id="secPano"><div class="sec-head"><h2>Görsel pano</h2><span class="eyebrow">Referanslar</span></div>${boardShell()}</section>`; S.openNote = null; }
   if (tab === "kritik") { subscribeLearn(); S.editCrit = null; body.innerHTML = `<div class="crit-top"><button class="btn primary" data-act="crit-new">${ICON.plus}Yeni kritik</button><span class="ai-note">Derste aldığın kritikleri tarihi, dersi ve ne gösterdiğinle birlikte kaydet.</span></div><div id="critNew" hidden></div><div class="critlist" id="critList"></div>`; }
-  if (tab === "plan") { body.innerHTML = planShell(); fillHeader(proj(), true); }
+  if (tab === "plan") { body.innerHTML = planShell() + `<section class="sec" id="secSurec"><div class="sec-head"><h2>Süreç</h2><span class="eyebrow">Aşamalar</span></div><div id="process"></div></section>`; fillHeader(proj(), true); }
   refreshTab(); updateTabCounts();
+  if (S.jump) { const el = document.getElementById(S.jump); S.jump = null; if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 60); }
 }
 function refreshTab() {
   const tab = S.route.tab;
-  if (tab === "surec") renderProcess();
-  if (tab === "matris") renderMatrix();
-  if (tab === "eskiz") renderSketches();
-  if (tab === "arastirma") renderNotes();
-  if (tab === "pano") renderBoard();
+  if (tab === "eskiz") { renderSketches(); renderMatrix(); }
+  if (tab === "arastirma") { renderNotes(); renderBoard(); }
   if (tab === "kritik") renderCrits();
-  if (tab === "plan") renderPlan();
+  if (tab === "plan") { renderPlan(); renderProcess(); }
 }
 
 /* sketches list */
@@ -1959,7 +2029,8 @@ const saveStageNote = debounce((pid, k, v) => { const p = S.projects.find(x => x
 function openItem(id) {
   const it = S.items.find(x => x.id === id); if (!it) return;
   if (it.kind === "sketch") { openSketch(id); return; }
-  const tab = { note: "arastirma", image: "pano", crit: "kritik" }[it.kind];
+  const tab = { note: "arastirma", image: "arastirma", crit: "kritik" }[it.kind];
+  if (it.kind === "image") S.jump = "secPano";
   S.route.tab = tab; history.replaceState(null, "", `#p-${S.route.pid}-${tab}`); mountTab();
   if (it.kind === "note") openNote(id);
   if (it.kind === "crit") { S.editCrit = id; renderCrits(); }
@@ -2037,7 +2108,7 @@ function renderPlan() {
     else if (dr) host.innerHTML = draftHTML(dr);
     else if (p.plan && (p.plan.stages || []).length) {
       const st = p.plan.stages, exp = expectedStage(st), cur = curStage(p), ei = PSTAGES.findIndex(s => s[0] === exp), ci = PSTAGES.findIndex(s => s[0] === cur);
-      const status = ei > ci ? `<span class="plan-st warn">Plana göre <b>${stageName(exp)}</b> aşamasında olmalıydın.</span> <button class="linkbtn" data-act="go-tab" data-tab="surec">Süreç'te ilerle →</button>`
+      const status = ei > ci ? `<span class="plan-st warn">Plana göre <b>${stageName(exp)}</b> aşamasında olmalıydın.</span> <button class="linkbtn" data-act="go-tab" data-tab="plan" data-jump="secSurec">Süreç'te ilerle →</button>`
         : ei < ci ? `<span class="plan-st ok">Planın önündesin.</span>` : `<span class="plan-st ok">Plana uygun gidiyorsun.</span>`;
       const ms = p.plan.kilometre || [], next = ms.find(m => m.tarih >= todayISO());
       host.innerHTML = `<section class="sec"><div class="sec-head"><h2>Plan</h2><span class="eyebrow">${p.plan.at ? "Oluşturuldu " + fmtDate(p.plan.at) : ""}</span></div>
@@ -2772,7 +2843,7 @@ const ACT = {
   "plan-make": () => makePlan(),
   "plan-apply": () => applyPlan(),
   "plan-cancel": () => { const p = proj(); if (p) delete S.drafts[p.id]; renderPlan(); },
-  "go-tab": el => { S.route.tab = el.dataset.tab; history.replaceState(null, "", `#p-${S.route.pid}-${S.route.tab}`); mountTab(); $("#main").scrollTop = 0; },
+  "go-tab": el => { S.route.tab = TAB_ALIAS[el.dataset.tab] || el.dataset.tab; S.jump = el.dataset.jump || null; history.replaceState(null, "", `#p-${S.route.pid}-${S.route.tab}`); mountTab(); $("#main").scrollTop = 0; },
   "set-stage": el => setProjectStage(el.dataset.s),
   "open-item": el => openItem(el.dataset.id),
   "mx-add-con": () => mxAddCon(),
@@ -2805,6 +2876,7 @@ const ACT = {
   "img-ai": () => imageBridge({ pid: S.route.pid }),
   "sk-iter": el => newIteration(el.dataset.id),
   "paper-sketch": () => $("#paperPick")?.click(),
+  "open-last-sketch": () => { const s = LAST.sk; if (!s) return; go({ view: "project", pid: s.pid, tab: "eskiz" }); if (S.items.some(i => i.id === s.id)) openSketch(s.id); else S.openAfter = s.id; },
   "prac-start": el => startPractice(el.dataset.ex),
   "crit-new": () => { const w = $("#critNew"); if (!w) return; S.editCrit = null; w.innerHTML = critFormHTML(); w.hidden = false; renderCrits(); setTimeout(() => $("#cfText")?.focus(), 30); },
   "crit-cancel": () => { S.editCrit = null; const w = $("#critNew"); if (w) { w.hidden = true; w.innerHTML = ""; } document.activeElement?.blur?.(); renderCrits(); },
@@ -2901,7 +2973,7 @@ document.addEventListener("submit", e => {
 });
 document.addEventListener("paste", async e => {
   const files = [...(e.clipboardData?.files || [])].filter(f => f.type.startsWith("image/"));
-  if (S.route.tab === "pano" && $("#masonry") && files.length && !e.target.closest("input,textarea")) { e.preventDefault(); addBoardImages(files); return; }
+  if ($("#masonry") && files.length && !e.target.closest("input,textarea,#doc,[contenteditable]")) { e.preventDefault(); addBoardImages(files); return; }
   if (e.target.closest && e.target.closest("#doc")) {
     e.preventDefault();
     if (files.length) { insertNoteImage(files[0]); return; }
@@ -2917,7 +2989,7 @@ async function insertNoteImage(file) {
   NOTE.dirty = true; saveNote();
 }
 ["dragover", "dragleave", "drop"].forEach(ev => document.addEventListener(ev, e => {
-  const dz = $("#drop"); if (!dz || !ASSETS || S.route.tab !== "pano") return;
+  const dz = $("#drop"); if (!dz || !ASSETS || !(e.target.closest && e.target.closest("#secPano"))) { if (dz && ev !== "dragover") dz.classList.remove("over"); return; }
   if (!e.dataTransfer || ![...e.dataTransfer.types].includes("Files")) return;
   e.preventDefault();
   dz.classList.toggle("over", ev === "dragover");
@@ -3597,6 +3669,7 @@ function subscribeLearn() {
   LEARN.unsub = learnCol().onSnapshot(snap => {
     LEARN.cards = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     LEARN.loaded = true; if (S.route.view === "learn") renderLearnBody();
+    if (S.route.view === "home") { const e = $("#tcLearn"); if (e) e.innerHTML = todayLearnHTML(); }
     if (S.route.view === "crits" && S.allCrits) renderCritsPage();
     if (S.route.view === "project" && S.route.tab === "kritik") renderCrits();
   }, () => { LEARN.loaded = true; });
@@ -3666,6 +3739,7 @@ function subscribePractice() {
   PRAC.unsub = pracCol().onSnapshot(snap => {
     PRAC.sessions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
     PRAC.loaded = true; if (S.route.view === "practice" && !PR) renderPracticeBody();
+    if (S.route.view === "home") { const e = $("#tcPrac"); if (e) e.innerHTML = todayPracHTML(); }
   }, () => { PRAC.loaded = true; });
 }
 function streakDays() {
