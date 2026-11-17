@@ -812,6 +812,54 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .idea.done b{color:var(--ink-2)}
 .idea-hint{margin:0 4px 4px;font-size:12.5px;color:var(--ink-3);line-height:1.4}
 .tpl.ideas{gap:6px}
+.m-chip{align-self:flex-start;font-size:10.5px;font-weight:600;padding:1px 7px;border-radius:99px;background:var(--surface);color:var(--accent);margin:2px 0 1px}
+.m-pick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.m-pick .eyebrow{margin:0 4px 0 0}
+.mchip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;padding:5px 11px;font:500 13px var(--f-body);cursor:pointer}
+.mchip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.m-desc{margin:0;font-size:13px;color:var(--ink-2);line-height:1.45}
+.m-acts{display:flex;gap:6px;flex-wrap:wrap}
+.m-hint{margin:0;font-size:13.5px;color:var(--ink-2);line-height:1.5;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 14px}
+.m-grp{margin-top:10px}
+.m-grp .eyebrow{margin:0 4px 6px}
+.m-grp.cur .eyebrow{color:var(--accent)}
+.mlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.mrow{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 12px}
+.m-grp.cur .mrow{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.m-open{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;text-align:left;background:none;border:0;padding:2px 0;color:var(--ink);cursor:pointer;font:inherit}
+.m-open b{font-weight:600;font-size:14px}
+.m-open small{font-size:12.5px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.m-tool,.m-st{flex:none;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--fill-2);color:var(--ink-2)}
+.m-st{margin-left:4px}
+.mrow.done .m-open b{color:var(--ink-3);text-decoration:line-through}
+.m-draft{margin:10px 0;padding:12px 14px;display:grid;gap:6px}
+.m-draft ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.m-draft label{display:flex;gap:8px;align-items:flex-start;background:var(--fill);border-radius:10px;padding:8px 10px;cursor:pointer}
+.m-draft label small{display:block;font-size:12.5px;color:var(--ink-2);margin-top:1px}
+.m-draft .row{display:flex;gap:8px;margin-top:4px}
+.bridge.lib{width:min(720px,100%)}
+.lib-st{font-size:15px;font-weight:700;margin:16px 0 4px}
+.bridge.lib .eyebrow{margin:8px 0 6px}
+.lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px}
+.lib-item{display:flex;flex-direction:column;gap:2px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 11px;color:var(--ink);cursor:pointer;font:inherit}
+.lib-item b{font-weight:600;font-size:13.5px}
+.lib-item small{font-size:12px;color:var(--ink-2);line-height:1.35}
+.lib-item.on{background:var(--accent-soft);border-color:var(--accent)}
+.lib-item.on b{color:var(--accent)}
+.bridge.sv{width:min(640px,100%)}
+.sv-body textarea,.sv-body .inp{width:100%}
+.sv-h{font-size:14px;font-weight:700;margin:14px 0 4px}
+.sv-warn{background:#FFF5DB;color:#6B4E00;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.45;margin-bottom:6px}
+:root[data-theme="dark"] .sv-warn{background:#3A2E0E;color:#F2D58A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sv-warn{background:#3A2E0E;color:#F2D58A}}
+.sv-crit{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.sv-crit li{background:var(--fill);border-radius:10px;padding:8px 10px;display:grid;gap:2px;font-size:13.5px}
+.sv-crit span{color:var(--ink-2);font-size:13px}
+.sv-crit em{font-style:normal;color:var(--accent);font-size:13px}
+.sv-kavram{margin-top:10px;background:var(--accent-soft);border-radius:10px;padding:9px 11px;font-size:13.5px}
+.sv-steps{margin:6px 0 10px;padding-left:20px;display:grid;gap:8px;font-size:14px;line-height:1.5}
+.sv-code{width:100%;min-height:180px;font:12px/1.4 ui-monospace,Consolas,monospace;margin-top:6px}
+.bridge.sv details summary{cursor:pointer;font-size:13px;color:var(--ink-2)}
 /* sidebar group label */
 .side-sec .eyebrow.grp{padding-top:4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -1754,18 +1802,186 @@ async function newSketch() {
   openSketch(id);
 }
 
-/* research */
+/* research: every document has a method; the method decides which tools the document shows */
+const METHODS = {
+  literatur: ["Literatür", "Makale, standart ve veri taraması: ne biliniyor, kaç derece, hangi ölçü?"],
+  anket: ["Anket", "Çok kişiye kısa sorular: kaç kişi, ne sıklıkla, hangisini tercih ediyor? Sayısal cevap gerekiyorsa."],
+  gorusme: ["Görüşme", "5–6 kişiyle derinlemesine konuşma: neden, nasıl hissediyor, nerede zorlanıyor?"],
+  gozlem: ["Gözlem", "Gerçek kullanımı izlemek: insanlar ürünü gerçekte nasıl kullanıyor?"],
+  inceleme: ["Ürün incelemesi", "Rakip ve benzer ürünler, malzeme ve marka uygulamalarını aynı kriterlerle karşılaştırmak."],
+};
+function methodKey(s) {
+  s = String(s || "").toLocaleLowerCase("tr");
+  if (/anket|survey|form/.test(s)) return "anket";
+  if (/görüş|gorus|mülakat|röportaj/.test(s)) return "gorusme";
+  if (/gözlem|gozlem/.test(s)) return "gozlem";
+  if (/incele|rakip|benzer|ürün|malzeme|katalog/.test(s)) return "inceleme";
+  if (/liter|kaynak|makale|standart|veri/.test(s)) return "literatur";
+  return "";
+}
+/* Method library: the industrial design toolbox, grouped by the app's stages. Nothing here is
+   mandatory; Claude suggests a few per project and the student adds any at any time.
+   [name, stage, group, tool, what, sections | template key]
+   tool: a research family (opens that document toolset) or belge / matris / eskiz / pano. */
+const LIB = {
+  etnografi: ["Etnografik gözlem", "arastirma", "Kullanıcı", "gozlem", "Kullanıcıyı kendi ortamında, ürünü gerçekten kullanırken gözlemle.", ["Nerede, ne zaman, kimi gözlemleyeceğim", "Adım adım gözlem notları", "Zorlanma anları ve geçici çözümler", "Fotoğraflar", "İçgörüler"]],
+  mulakat: ["Derinlemesine görüşme", "arastirma", "Kullanıcı", "gorusme", "Bire bir, açık uçlu sorularla neden ve nasıl'ı öğren.", "interview"],
+  anket: ["Anket", "arastirma", "Kullanıcı", "anket", "Çok kişiden sayısal veri topla: kaç kişi, ne sıklıkla, hangisi?", "survey"],
+  odak: ["Odak grubu", "arastirma", "Kullanıcı", "gorusme", "5–8 kullanıcıyla yönettiğin bir tartışma.", ["Katılımcılar", "Tartışma akışı ve sorular", "Öne çıkan görüşler", "Anlaşmazlıklar", "İçgörüler"]],
+  golgeleme: ["Gölgeleme (shadowing)", "arastirma", "Kullanıcı", "gozlem", "Bir kullanıcıyla birkaç saat geçirip davranışlarını takip et.", ["Katılımcı ve gün", "Zaman çizelgesi", "Ürünle temas anları", "Şaşırtan davranışlar", "İçgörüler"]],
+  prob: ["Kültürel prob", "arastirma", "Kullanıcı", "gorusme", "Kullanıcıya günlük ya da fotoğraf görevleri verip hayatını kendisinin belgelemesini iste.", ["Prob kiti: görevler ve malzemeler", "Katılımcılar ve süre", "Gelen belgeler", "Örüntüler", "İçgörüler"]],
+  benchmark: ["Benchmarking", "arastirma", "Pazar", "inceleme", "Mevcut ürünleri aynı kriterlerle karşılaştır.", "competitor"],
+  trend: ["Trend analizi", "arastirma", "Pazar", "literatur", "Form, CMF, teknoloji ve davranış trendlerini takip et.", ["Takip ettiğim kaynaklar", "Trendler: form, CMF, teknoloji, davranış", "Projeme etkisi"]],
+  swot: ["SWOT analizi", "arastirma", "Pazar", "inceleme", "Güçlü ve zayıf yönler, fırsatlar ve tehditler.", ["Güçlü yönler", "Zayıf yönler", "Fırsatlar", "Tehditler", "Sonuç"]],
+  heuristik: ["Heuristik değerlendirme", "arastirma", "Pazar", "inceleme", "Mevcut ürünleri kullanılabilirlik ilkelerine göre incele.", ["İncelenen ürün", "İlkeler: görünürlük, geri bildirim, eşleşme, kısıtlar, tutarlılık, hata önleme", "Bulunan sorunlar ve ciddiyeti", "Fırsatlar"]],
+  patent: ["Patent araştırması", "arastirma", "Pazar", "literatur", "Mevcut teknik çözümleri ve kaçınman gerekenleri bul.", ["Arama terimleri", "Bulunan patentler: numara, sahip, yıl, çözüm", "Kaçınmam gerekenler", "Fırsatlar"]],
+  malzeme: ["Malzeme ve üretim araştırması", "arastirma", "Teknik", "literatur", "Uygun malzeme ve üretim yöntemlerini tara.", "material"],
+  ergonomi: ["Ergonomi ve antropometri", "arastirma", "Teknik", "literatur", "Kullanıcı ölçülerini veriyle belirle.", ["Hedef kullanıcı: yaş, cinsiyet, persentil", "Gerekli ölçüler ve kaynakları", "Tasarım ölçülerim", "Doğrulama"]],
+  standart: ["Mevzuat ve standartlar", "arastirma", "Teknik", "literatur", "İlgili ISO, EN, TSE ve CE gerekliliklerini bul.", ["İlgili standartlar", "Tasarımı etkileyen maddeler", "Kontrol listesi"]],
+  empati: ["Empati haritası", "arastirma", "Çerçeveleme", "belge", "Kullanıcı ne söylüyor, düşünüyor, yapıyor, hissediyor?", ["Ne söylüyor?", "Ne düşünüyor?", "Ne yapıyor?", "Ne hissediyor?", "Acı noktaları", "Kazanımlar"]],
+  yolculuk: ["Kullanıcı yolculuğu", "arastirma", "Çerçeveleme", "belge", "Kullanıcının ürünle temas ettiği tüm anları sırala.", ["Aşamalar", "Her aşamada yaptıkları", "Temas noktaları", "İyi ve kötü anlar", "Fırsatlar"]],
+  persona: ["Persona", "arastirma", "Çerçeveleme", "belge", "Araştırmana dayanan tipik kullanıcı profilleri kur.", ["Ad, yaş, yaşam", "Hedefleri", "Zorlandıkları", "Bir günü", "Ürünle ilişkisi", "Hangi araştırmaya dayanıyor?"]],
+  jtbd: ["Jobs to be done", "arastirma", "Çerçeveleme", "belge", "Kullanıcı ürüne aslında hangi işi yaptırmak istiyor?", ["Durum: … olduğunda", "Motivasyon: … istiyorum", "Beklenen sonuç: … böylece", "Bugün bu işi nasıl çözüyor?"]],
+  neden5: ["5 neden", "arastirma", "Çerçeveleme", "belge", "Problemin kök nedenine in.", ["Problem", "1. Neden?", "2. Neden?", "3. Neden?", "4. Neden?", "5. Neden? (kök neden)", "Tasarım fırsatı"]],
+  hmw: ["Nasıl yapabiliriz? (HMW)", "konsept", "Fikir", "belge", "İçgörüleri \"Nasıl … yapabiliriz?\" sorularına çevir.", ["İçgörü", "HMW soruları (en az 5)", "Seçtiğim soru ve nedeni"]],
+  crazy8: ["Crazy 8's", "konsept", "Fikir", "eskiz", "8 dakikada 8 farklı konsept eskizi."],
+  scamper: ["SCAMPER", "konsept", "Fikir", "belge", "Var olanı 7 soruyla dönüştür.", ["Yerine koy (Substitute)", "Birleştir (Combine)", "Uyarla (Adapt)", "Değiştir / büyüt (Modify)", "Başka amaçla kullan (Put to other uses)", "Çıkar (Eliminate)", "Ters çevir (Reverse)"]],
+  morfoloji: ["Morfolojik analiz", "konsept", "Fikir", "belge", "Bileşenlerin çözüm seçeneklerini matriste birleştir.", ["Fonksiyonlar / bileşenler", "Her biri için çözüm seçenekleri", "Seçtiğim kombinasyonlar"]],
+  analoji: ["Analoji ve biyomimikri", "konsept", "Fikir", "belge", "Doğadan ya da başka sektörlerden ilke aktar.", ["Problem", "Doğadan / başka sektörden örnekler", "Aktarılabilecek ilke", "Eskiz fikirleri"]],
+  zihin: ["Zihin haritası", "konsept", "Fikir", "belge", "Kavramlar arasındaki ilişkileri dallandır.", ["Merkez kavram", "Ana dallar", "Beklenmedik bağlantılar"]],
+  pugh: ["Pugh matrisi", "konsept", "Seçim", "matris", "Konseptleri kriterlere göre puanla."],
+  iki2: ["2×2 matris", "konsept", "Seçim", "belge", "Konseptleri iki eksende konumlandır.", ["Eksenler (ör. etki / uygulanabilirlik)", "Konseptlerin konumu", "Seçim ve gerekçesi"]],
+  senaryo: ["Kullanım senaryosu ve storyboard", "gelistirme", "Form ve ergonomi", "belge", "Ürünün adım adım nasıl tutulup kullanılacağını kurgula.", ["Kullanıcı ve bağlam", "Adım adım kullanım", "Kritik anlar: tutma, açma, temizleme", "Storyboard kareleri"]],
+  cmf: ["CMF kartı", "gelistirme", "Form ve ergonomi", "belge", "Renk, malzeme ve yüzey kararlarını gerekçeleriyle topla.", ["Renk paleti ve gerekçesi", "Malzemeler", "Yüzey işlemleri", "Parça parça CMF", "Üretilebilirlik notu"]],
+  moodboard: ["Mood board", "gelistirme", "Form ve ergonomi", "pano", "Estetik ve duygusal referans panosu."],
+  kabamaket: ["Kaba maket", "maket", "Prototip", "belge", "Karton ya da köpükle oran, boyut ve tutuşu dene.", ["Amaç: oran, boyut, tutuş", "Malzeme ve ölçek", "Fotoğraflar", "Öğrendiklerim"]],
+  gorunum: ["Görünüm modeli (look-like)", "maket", "Prototip", "belge", "Renk ve yüzeyi gösteren gerçekçi, çalışmayan maket.", ["Parçalar ve yöntem: 3B baskı, CNC, el yapımı", "Yüzey hazırlığı ve boya", "Takvim", "Fotoğraf çekim listesi"]],
+  kullanilabilirlik: ["Kullanılabilirlik testi", "maket", "Test", "gozlem", "Gerçek kullanıcılara görev verip izle.", ["Görevler", "Katılımcılar (5 kişi çoğu sorunu gösterir)", "Gözlemler ve hatalar", "Ölçümler: süre, başarı", "Revizyonlar"]],
+  sus: ["SUS / memnuniyet anketi", "maket", "Test", "anket", "Standart memnuniyet ölçeğiyle prototipi puanlat.", "survey"],
+  dfm: ["DFM / DFA kontrolü", "final", "Üretim", "belge", "Üretimi ve montajı kolaylaştıracak kararları kontrol et.", ["Parça listesi", "Her parçanın üretim yöntemi", "Et kalınlığı, kalıp çıkma açısı, alt kesim", "Montaj sırası ve bağlantılar", "Riskler"]],
+  bom: ["Malzeme listesi (BOM)", "final", "Üretim", "belge", "Parçaları, adetleri, malzemeleri ve yöntemleri listele.", ["Parça listesi: no, parça, adet, malzeme, yöntem, yüzey"]],
+  teknik: ["Teknik çizim kontrolü", "final", "Üretim", "belge", "Teslim öncesi teknik çizimleri gözden geçir.", ["Görünüşler", "Ölçüler ve toleranslar", "Kesit ve detaylar", "Patlatılmış görünüş", "Ölçek ve antet"]],
+  hikaye: ["Tasarım hikâyesi ve pafta akışı", "final", "Sunum", "belge", "Problemden sonuca düşünce zincirini kur.", ["Problem", "İçgörü", "Konsept", "Tasarım kararları", "Sonuç", "Pafta sırası"]],
+  sartname: ["Teknik şartname", "final", "Sunum", "belge", "Boyut, malzeme ve yüzey özelliklerini tek sayfada topla.", ["Genel ölçüler", "Malzemeler ve yüzeyler", "Teknik özellikler", "Kullanım ve bakım"]],
+};
+const TOOL_NAME = { literatur: "Kaynak tara", anket: "Anket aracı", gorusme: "Görüşme aracı", gozlem: "Gözlem aracı", inceleme: "İnceleme", belge: "Belge", matris: "Matris", eskiz: "Eskiz", pano: "Pano" };
+const libKeysPrompt = () => PSTAGES.map(([s, l]) => `${l}: ` + Object.entries(LIB).filter(([, m]) => m[1] === s).map(([k, m]) => `${k} (${m[0]})`).join(", ")).join("\n");
+function goTab(tab, jump) { S.route.tab = tab; S.jump = jump || null; history.replaceState(null, "", `#p-${S.route.pid}-${tab}`); mountTab(); $("#main").scrollTop = 0; }
+async function startMethod(k) {
+  const p = proj(), m = LIB[k]; if (!p || !m) return;
+  const list = (p.methods || []).slice(); let e = list.find(x => x.k === k);
+  if (!e) { e = { k, why: "", done: false }; list.push(e); }
+  const tool = m[3];
+  if (tool === "matris") { await updateProject(p.id, { methods: list }); goTab("eskiz", "secMatris"); return; }
+  if (tool === "pano") { await updateProject(p.id, { methods: list }); goTab("arastirma", "secPano"); return; }
+  if (e.itemId && S.items.some(i => i.id === e.itemId)) { openItem(e.itemId); return; }
+  const id = rid();
+  const doc = tool === "eskiz"
+    ? { kind: "sketch", phase: m[1], title: m[0], strokes: [], layers: defaultLayers(), active: 0, bg: null, guide: "dots", thumb: "", note: m[4], createdAt: now(), updatedAt: now() }
+    : { kind: "note", phase: m[1], title: m[0], html: libDocHTML(k, e.why), method: METHODS[tool] ? tool : "", lib: k, createdAt: now(), updatedAt: now() };
+  S.items.push({ id, ...doc });
+  try { await itemDoc(p.id, id).set(doc); } catch { toast("Oluşturulamadı."); return; }
+  e.itemId = id;
+  await updateProject(p.id, { methods: list.map(x => x.k === k ? { ...e } : x) });
+  updateTabCounts(); openItem(id);
+}
+function renderMethods() {
+  const box = $("#methods"), p = proj(); if (!box || !p) return;
+  const list = (p.methods || []).filter(x => LIB[x.k]), cur = curStage(p), dr = S.mDraft && S.mDraft[p.id];
+  const row = x => { const m = LIB[x.k]; return `<li class="mrow${x.done ? " done" : ""}"><input type="checkbox" class="chk" data-act="m-done" data-k="${x.k}" ${x.done ? "checked" : ""} aria-label="Tamamlandı"><button class="m-open" data-act="m-start" data-k="${x.k}"><b>${esc(m[0])}</b><small>${esc(x.why || m[4])}</small></button><span class="m-tool">${TOOL_NAME[m[3]]}</span><button class="btn sm icon ghost" data-act="m-del" data-k="${x.k}" aria-label="Kaldır">${ICON.x}</button></li>`; };
+  box.innerHTML = `<section class="sec"><div class="sec-head"><h2>Yöntemler</h2><div class="m-acts">${SAMPLE ? `<button class="btn sm ghost" data-act="m-suggest" ${S.mBusy ? "disabled" : ""}>${ICON.spark}${S.mBusy ? "Düşünüyor…" : "Claude önersin"}</button>` : ""}<button class="btn sm" data-act="m-lib">${ICON.plus}Yöntem ekle</button></div></div>
+    ${dr ? `<div class="card m-draft"><b>Claude'un önerisi</b><p class="ai-note">${esc(dr.ozet || "Projene uygun yöntemler. İstemediklerinin işaretini kaldır.")}</p><ul>${dr.list.map((x, i) => `<li><label><input type="checkbox" class="chk" data-mdi="${i}" ${x.off ? "" : "checked"}><span><b>${esc(LIB[x.k][0])}</b> <span class="m-st">${stageName(LIB[x.k][1])}</span><small>${esc(x.why)}</small></span></label></li>`).join("")}</ul>${dr.skip ? `<p class="ai-note"><b>Gerek görmediği:</b> ${esc(dr.skip)}</p>` : ""}<div class="row"><button class="btn primary sm" data-act="m-draft-ok">Seçilenleri ekle</button><button class="btn sm ghost" data-act="m-draft-no">Vazgeç</button></div></div>` : ""}
+    ${list.length ? PSTAGES.map(([s, l]) => { const xs = list.filter(x => LIB[x.k][1] === s); return xs.length ? `<div class="m-grp${s === cur ? " cur" : ""}"><div class="eyebrow">${l}${s === cur ? " · şu an" : ""}</div><ul class="mlist">${xs.map(row).join("")}</ul></div>` : ""; }).join("")
+      : dr ? "" : `<p class="m-hint">Görüşme, persona, SCAMPER, Pugh matrisi, kaba maket… Tasarım sürecinde kullanabileceğin yöntemleri buraya topla. Claude brief'ine göre önerebilir ya da kütüphaneden kendin seçebilirsin. Hiçbiri zorunlu değil.</p>`}
+  </section>`;
+}
+function libSheet() {
+  const p = proj(); if (!p) return;
+  const ov = document.createElement("div"); ov.className = "bridge-ov";
+  const draw = () => { const have = new Set((proj().methods || []).map(x => x.k));
+    return `<div class="bridge cw lib" role="dialog" aria-modal="true" aria-labelledby="libT">
+      <div class="bridge-h"><h2 id="libT">Yöntem kütüphanesi</h2><button class="btn icon ghost" data-l="x" aria-label="Kapat">${ICON.x}</button></div>
+      <p class="muted">Projene eklemek istediklerine dokun. Süreç döngüseldir; herhangi bir aşamada önceki bir yönteme dönebilirsin.</p>
+      ${PSTAGES.map(([s, l]) => { const ks = Object.keys(LIB).filter(k => LIB[k][1] === s); if (!ks.length) return ""; const groups = [...new Set(ks.map(k => LIB[k][2]))];
+        return `<h3 class="lib-st">${l}</h3>${groups.map(g => `<div class="eyebrow">${g}</div><div class="lib-grid">${ks.filter(k => LIB[k][2] === g).map(k => `<button class="lib-item${have.has(k) ? " on" : ""}" data-l="add" data-k="${k}"><b>${have.has(k) ? "✓ " : ""}${esc(LIB[k][0])}</b><small>${esc(LIB[k][4])}</small></button>`).join("")}</div>`).join("")}`; }).join("")}
+    </div>`; };
+  ov.innerHTML = draw(); document.body.appendChild(ov);
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); renderMethods(); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  ov.addEventListener("click", async e => {
+    if (e.target === ov) return close();
+    const b = e.target.closest("[data-l]"); if (!b) return;
+    if (b.dataset.l === "x") return close();
+    const cur = proj(), k = b.dataset.k, list = cur.methods || [];
+    await updateProject(cur.id, { methods: list.some(x => x.k === k) ? list.filter(x => x.k !== k || x.itemId || x.done) : list.concat({ k, why: "", done: false }) });
+    const sc = $(".bridge", ov).scrollTop; ov.innerHTML = draw(); $(".bridge", ov).scrollTop = sc;
+  });
+}
+async function suggestMethods() {
+  const p = proj(); if (!p || !SAMPLE || S.mBusy) return;
+  if ((p.brief || "").trim().length < 20) { toast("Önce brief'i ekle; yöntemler ona göre önerilir."); $("#pbrief")?.focus(); return; }
+  const crits = itemsOf("crit").sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 4);
+  const left = p.due ? daysLeft(p.due) : null;
+  const prompt = `Bir endüstriyel tasarım öğrencisinin projesi için tasarım yöntemleri öner. Türkçe yaz.
+PROJE: ${p.name || "-"}${p.course ? " (" + p.course + ")" : ""}
+ŞU ANKİ AŞAMA: ${stageName(curStage(p))}${left !== null ? ` · teslime ${left} gün` : ""}
+BRIEF: """${p.brief.slice(0, 5000)}"""
+${crits.length ? `SON KRİTİKLER: ${crits.map(c => (c.text || "").replace(/\s+/g, " ").slice(0, 200)).join(" / ")}\n` : ""}ZATEN SEÇTİKLERİ: ${(p.methods || []).map(x => x.k).join(", ") || "(yok)"}
+
+YÖNTEM KÜTÜPHANESİ (yalnızca bu anahtarları kullan):
+${libKeysPrompt()}
+
+KURALLAR
+- Brief'in gerçekten gerektirdiği 5–9 yöntem seç; her yöntemi seçme. Zaman azsa daha az seç.
+- Şu anki aşamadan ve sonrasından seç; geçmiş aşamalardan yalnızca eksik kalmış kritik bir şey varsa.
+- Her proje anket, persona ya da odak grubu gerektirmez. Örneğin marka ya da ürün ailesi projelerinde benchmarking, trend, CMF ve kullanım senaryosu çoğu zaman daha değerlidir. Gereksiz gördüğün yaygın yöntemleri GEREKSİZ satırında kısaca belirt.
+- Brief'te teslim listesi varsa (storyboard, teknik çizim, maket…) onları karşılayan yöntemleri mutlaka dahil et.
+
+Yalnızca şu biçimde yaz, başka hiçbir şey yazma:
+ÖZET: <bu projede yöntem seçiminin mantığı, tek cümle>
+<anahtar> | <bu projede neden, tek cümle>
+<anahtar> | <…>
+GEREKSİZ: <gerek görmediğin yaygın yöntemler ve kısa nedeni>`;
+  S.mBusy = true; renderMethods();
+  try {
+    const r = await SAMPLE(prompt, { cache: false });
+    const have = new Set((p.methods || []).map(x => x.k)); let ozet = "", skip = ""; const list = [];
+    r.text.split(/\r?\n/).forEach(l => { l = l.replace(/^[\s\-*•]+/, "").replace(/\*\*/g, "").trim();
+      if (/^ÖZET\s*:/i.test(l)) ozet = l.replace(/^[^:]*:\s*/, "");
+      else if (/^GEREKS[İI]Z\s*:/i.test(l)) skip = l.replace(/^[^:]*:\s*/, "");
+      else { const m = l.match(/^`?([a-z0-9]+)`?\s*\|\s*(.+)$/i); if (m && LIB[m[1]] && !have.has(m[1]) && !list.some(x => x.k === m[1])) list.push({ k: m[1], why: m[2].trim().slice(0, 200) }); } });
+    if (!list.length) { toast(ozet || "Yeni bir yöntem önerisi çıkmadı."); return; }
+    S.mDraft = { ...(S.mDraft || {}), [p.id]: { ozet, skip, list } };
+  } catch (e) { const m = aiErr(e, "Öneri alınamadı. Tekrar dene."); if (m) toast(m); }
+  finally { S.mBusy = false; renderMethods(); }
+}
+async function acceptMethodDraft() {
+  const p = proj(), dr = p && S.mDraft && S.mDraft[p.id]; if (!dr) return;
+  const add = dr.list.filter(x => !x.off).map(x => ({ k: x.k, why: x.why, done: false }));
+  delete S.mDraft[p.id];
+  if (add.length) await updateProject(p.id, { methods: (p.methods || []).concat(add) });
+  renderMethods(); if (add.length) toast(`${add.length} yöntem eklendi`);
+}
+function libDocHTML(k, why) {
+  const m = LIB[k]; if (!m) return "";
+  const head = `<h1>${esc(m[0])}</h1><p><i>${esc(m[4])}</i></p>${why ? `<p><b>Bu projede neden:</b> ${esc(why)}</p>` : ""}`;
+  if (typeof m[5] === "string") return head + TEMPLATES[m[5]].html.replace(/^<h1>[^<]*<\/h1>/, "");
+  return head + (m[5] || []).map(s => `<h2>${esc(s)}</h2><p>…</p>`).join("") + `<h2>Tasarımıma etkisi</h2><p>…</p>`;
+}
 const TEMPLATES = {
   blank: { title: "Adsız belge", html: "" },
-  interview: { title: "Kullanıcı görüşmesi", html: `<h1>Kullanıcı görüşmesi</h1><p><b>Katılımcı:</b> … · <b>Tarih:</b> … · <b>Süre:</b> … dk</p><h2>Bağlam</h2><p>Ürünü nerede, ne zaman, kiminle kullanıyor?</p><h2>Sorular</h2><ol><li>Bu işi şu an nasıl yapıyorsun?</li><li>En son ne zaman zorlandın? Ne oldu?</li><li>Hangi araçları kullanıyorsun, neden onları?</li><li>Sihirli bir değnek olsa neyi değiştirirdin?</li></ol><h2>Gözlemler</h2><ul><li>…</li></ul><h2>Alıntılar</h2><blockquote>“…”</blockquote><h2>İçgörüler</h2><ul><li>…</li></ul>` },
-  competitor: { title: "Rakip analizi", html: `<h1>Rakip analizi</h1><p>Benzer ürünleri aynı kriterlerle karşılaştır.</p><h2>Ürün 1 · Marka / Model</h2><ul><li><b>Fiyat:</b> … TL</li><li><b>Ölçüler:</b> … × … × … mm</li><li><b>Malzeme:</b> …</li><li><b>Üretim yöntemi:</b> …</li><li><b>Güçlü yanı:</b> …</li><li><b>Zayıf yanı:</b> …</li></ul><h2>Ürün 2 · Marka / Model</h2><ul><li><b>Fiyat:</b> … TL</li><li><b>Ölçüler:</b> … × … × … mm</li><li><b>Malzeme:</b> …</li><li><b>Üretim yöntemi:</b> …</li><li><b>Güçlü yanı:</b> …</li><li><b>Zayıf yanı:</b> …</li></ul><h2>Boşluk / fırsat</h2><p>Hiçbirinin çözmediği şey ne?</p>` },
-  material: { title: "Malzeme ve üretim", html: `<h1>Malzeme ve üretim</h1><h2>Aday malzemeler</h2><ul><li><b>ABS:</b> darbe dayanımı iyi, enjeksiyona uygun, …</li><li><b>Alüminyum 6061:</b> CNC / ekstrüzyon, eloksal, …</li><li><b>Kayın / meşe:</b> sıcak dokunuş, …</li></ul><h2>Üretim yöntemi</h2><ul><li>Enjeksiyon kalıplama: yüksek adet, kalıp maliyeti yüksek</li><li>Vakum form: düşük adet, ince cidar</li><li>CNC: prototip ve düşük adet</li><li>3D baskı (FDM / SLA): maket ve test</li></ul><h2>Yüzey işlem</h2><p>…</p><h2>Karar ve gerekçe</h2><p>…</p>` },
+  survey: { title: "Anket", method: "anket", html: `<h1>Anket</h1><h2>Ne öğrenmek istiyorum?</h2><p>…</p><h2>Kime soracağım?</h2><p>Kimler, kaç kişi, onlara nasıl ulaşacağım?</p><h2>Soru taslaklarım</h2><ol><li>…</li></ol><h2>Bulgular</h2><p>…</p><h2>Tasarımıma etkisi</h2><p>Bu sonuçlar tasarımımda neyi değiştiriyor?</p>` },
+  interview: { title: "Kullanıcı görüşmesi", method: "gorusme", html: `<h1>Kullanıcı görüşmesi</h1><p><b>Katılımcı:</b> … · <b>Tarih:</b> … · <b>Süre:</b> … dk</p><h2>Bağlam</h2><p>Ürünü nerede, ne zaman, kiminle kullanıyor?</p><h2>Sorular</h2><ol><li>Bu işi şu an nasıl yapıyorsun?</li><li>En son ne zaman zorlandın? Ne oldu?</li><li>Hangi araçları kullanıyorsun, neden onları?</li><li>Sihirli bir değnek olsa neyi değiştirirdin?</li></ol><h2>Gözlemler</h2><ul><li>…</li></ul><h2>Alıntılar</h2><blockquote>“…”</blockquote><h2>İçgörüler</h2><ul><li>…</li></ul>` },
+  competitor: { title: "Rakip analizi", method: "inceleme", html: `<h1>Rakip analizi</h1><p>Benzer ürünleri aynı kriterlerle karşılaştır.</p><h2>Ürün 1 · Marka / Model</h2><ul><li><b>Fiyat:</b> … TL</li><li><b>Ölçüler:</b> … × … × … mm</li><li><b>Malzeme:</b> …</li><li><b>Üretim yöntemi:</b> …</li><li><b>Güçlü yanı:</b> …</li><li><b>Zayıf yanı:</b> …</li></ul><h2>Ürün 2 · Marka / Model</h2><ul><li><b>Fiyat:</b> … TL</li><li><b>Ölçüler:</b> … × … × … mm</li><li><b>Malzeme:</b> …</li><li><b>Üretim yöntemi:</b> …</li><li><b>Güçlü yanı:</b> …</li><li><b>Zayıf yanı:</b> …</li></ul><h2>Boşluk / fırsat</h2><p>Hiçbirinin çözmediği şey ne?</p>` },
+  material: { title: "Malzeme ve üretim", method: "literatur", html: `<h1>Malzeme ve üretim</h1><h2>Aday malzemeler</h2><ul><li><b>ABS:</b> darbe dayanımı iyi, enjeksiyona uygun, …</li><li><b>Alüminyum 6061:</b> CNC / ekstrüzyon, eloksal, …</li><li><b>Kayın / meşe:</b> sıcak dokunuş, …</li></ul><h2>Üretim yöntemi</h2><ul><li>Enjeksiyon kalıplama: yüksek adet, kalıp maliyeti yüksek</li><li>Vakum form: düşük adet, ince cidar</li><li>CNC: prototip ve düşük adet</li><li>3D baskı (FDM / SLA): maket ve test</li></ul><h2>Yüzey işlem</h2><p>…</p><h2>Karar ve gerekçe</h2><p>…</p>` },
 };
 function researchShell() {
   return `<div class="research">
     <div class="notelist"><button class="btn primary" data-act="new-note" data-tpl="blank" style="margin-bottom:8px">${ICON.plus}Yeni belge</button><div id="noteList"></div>
       <div class="tpl"><div class="eyebrow">Şablondan başla</div>
         <button class="btn sm ghost" style="justify-content:flex-start" data-act="new-note" data-tpl="interview">Kullanıcı görüşmesi</button>
+        <button class="btn sm ghost" style="justify-content:flex-start" data-act="new-note" data-tpl="survey">Anket</button>
         <button class="btn sm ghost" style="justify-content:flex-start" data-act="new-note" data-tpl="competitor">Rakip analizi</button>
         <button class="btn sm ghost" style="justify-content:flex-start" data-act="new-note" data-tpl="material">Malzeme ve üretim</button>
       </div>
@@ -1780,7 +1996,7 @@ function renderIdeas() {
   const box = $("#ideas"), p = proj(); if (!box || !p) return;
   const list = (p.ideas && p.ideas.list) || [], busy = S.ideasBusy === p.id;
   box.innerHTML = `<div class="eyebrow">Ne araştırabilirim?</div>
-    ${list.length ? list.map(i => `<button class="idea${i.done ? " done" : ""}" data-act="idea-note" data-id="${i.id}" title="${esc(i.why)}"><b>${i.done ? "✓ " : ""}${esc(i.t)}</b><small>${esc(i.why)}</small></button>`).join("")
+    ${list.length ? list.map(i => `<button class="idea${i.done ? " done" : ""}" data-act="idea-note" data-id="${i.id}" title="${esc(i.why)}"><b>${i.done ? "✓ " : ""}${esc(i.t)}</b>${METHODS[i.m] ? `<span class="m-chip">${METHODS[i.m][0]}</span>` : ""}<small>${esc(i.why)}</small></button>`).join("")
       : `<p class="idea-hint">Brief'ine, projenin aşamasına ve aldığın kritiklere göre araştırma konuları önerir. Birine dokununca hazır bir belge açılır.</p>`}
     ${SAMPLE ? `<button class="btn sm" data-act="ideas-make" ${busy ? "disabled" : ""} style="justify-content:flex-start">${ICON.spark}${busy ? "Hazırlanıyor…" : list.length ? "Yeni öneriler al" : "Öneri al"}</button>` : ""}`;
 }
@@ -1795,18 +2011,26 @@ Proje: ${p.name || "-"}${p.course ? ` (${p.course})` : ""}
 Şu anki aşama: ${stageName(curStage(p))}
 Brief: """${(p.brief || "(yok)").slice(0, 1800)}"""
 ${Object.keys(sn).some(k => sn[k]) ? `Aşama notları: ${PSTAGES.filter(([k]) => sn[k]).map(([k, l]) => `${l}: ${sn[k]}`).join(" / ").slice(0, 600)}\n` : ""}${crits.length ? `Hocadan / jüriden aldığı kritikler (yeniden eskiye):\n${crits.map(c => `- [${c.date}] ${c.text || c.shown || ""}${(c.actions || []).length ? " | Yapılacaklar: " + c.actions.map(a => a.t).join("; ") : ""}`).join("\n").slice(0, 2000)}\n` : ""}${notes.length ? `Zaten açtığı araştırma belgeleri (bunları tekrarlama): ${notes.join(", ")}\n` : ""}
-Projenin bu aşamasında en çok işine yarayacak 4 araştırma konusu öner. Kritiklerde geçen sorunları önceliklendir. Her konu somut ve bir haftada yapılabilir olsun (kullanıcı gözlemi, görüşme, rakip/benzer ürün incelemesi, malzeme-üretim, ergonomi-ölçü, bağlam gibi farklı yöntemler karıştır). Türkçe yaz ve TAM OLARAK şu biçimi kullan, başka hiçbir şey yazma:
+Projenin bu aşamasında en çok işine yarayacak 4 araştırma konusu öner. Kritiklerde geçen sorunları önceliklendir. Her konu somut ve bir haftada yapılabilir olsun.
+Her konu için en uygun TEK yöntemi seç:
+- literatür: makale, standart, ölçü, malzeme verisi ("ne biliniyor, kaç derece?")
+- anket: çok kişiden sayısal ya da karşılaştırmalı cevap gerekiyorsa ("kaç kişi, hangisini tercih ediyor?")
+- görüşme: 5–6 kişiyle "neden, nasıl hissediyor?"
+- gözlem: gerçek kullanımı izlemek
+- inceleme: rakip ve benzer ürünler, malzeme, marka uygulamaları
+Anketi yalnızca gerçekten gerekiyorsa öner; birçok tasarım sorusu için literatür, inceleme ya da birkaç görüşme daha verimlidir. Türkçe yaz ve TAM OLARAK şu biçimi kullan, başka hiçbir şey yazma:
 
 ### <kısa konu başlığı, en fazla 6 kelime>
+Yöntem: <literatür | anket | görüşme | gözlem | inceleme>
 Neden: <bu projede neden önemli; brief'e ya da kritiğe bağla, tek cümle>
-Nasıl: <yöntem ve ilk adım, tek cümle>
+Nasıl: <bu yöntemle ilk adım, tek cümle>
 Sorular: <soru 1> | <soru 2> | <soru 3>`;
   S.ideasBusy = p.id; renderIdeas();
   try {
     const r = await SAMPLE(prompt, { cache: false });
     const list = r.text.split(/^#{2,4}\s+/m).slice(1).map(block => {
       const lines = block.trim().split(/\r?\n/), get = k => (lines.find(l => new RegExp("^\\**" + k + "\\**\\s*:", "i").test(l.trim())) || "").replace(/^[^:]*:\s*/, "").replace(/\*\*/g, "").trim();
-      return { id: rid(), t: lines[0].replace(/\*\*/g, "").trim().slice(0, 80), why: get("Neden"), how: get("Nasıl"), qs: get("Sorular").split("|").map(s => s.trim()).filter(Boolean), done: false };
+      return { id: rid(), t: lines[0].replace(/\*\*/g, "").trim().slice(0, 80), m: methodKey(get("Yöntem")), why: get("Neden"), how: get("Nasıl"), qs: get("Sorular").split("|").map(s => s.trim()).filter(Boolean), done: false };
     }).filter(i => i.t).slice(0, 6);
     if (!list.length) { toast("Cevap beklenen biçimde değil; tekrar dene."); return; }
     await updateProject(p.id, { ideas: { at: now(), list } });
@@ -1817,8 +2041,8 @@ async function ideaNote(iid) {
   const p = proj(); if (!p || !p.ideas) return;
   const i = p.ideas.list.find(x => x.id === iid); if (!i) return;
   if (i.noteId && S.items.some(n => n.id === i.noteId)) { openNote(i.noteId); renderNotes(); return; }
-  const html = `<h1>${esc(i.t)}</h1>${i.why ? `<p><b>Neden önemli:</b> ${esc(i.why)}</p>` : ""}${i.how ? `<h2>Nasıl araştıracağım</h2><p>${esc(i.how)}</p>` : ""}<h2>Cevaplamak istediğim sorular</h2><ol>${(i.qs.length ? i.qs : ["…"]).map(q => `<li>${esc(q)}</li>`).join("")}</ol><h2>Bulgular</h2><p>…</p><h2>Tasarımıma etkisi</h2><p>Bu bulgular eskizlerimde neyi değiştiriyor?</p>`;
-  const id = rid(); const doc = { kind: "note", phase: curStage(p), title: i.t, html, createdAt: now(), updatedAt: now() };
+  const html = `<h1>${esc(i.t)}</h1>${i.why ? `<p><b>Neden önemli:</b> ${esc(i.why)}</p>` : ""}${i.how ? `<h2>Nasıl araştıracağım${METHODS[i.m] ? " · " + METHODS[i.m][0] : ""}</h2><p>${esc(i.how)}</p>` : ""}<h2>Cevaplamak istediğim sorular</h2><ol>${(i.qs.length ? i.qs : ["…"]).map(q => `<li>${esc(q)}</li>`).join("")}</ol><h2>Bulgular</h2><p>…</p><h2>Tasarımıma etkisi</h2><p>Bu bulgular eskizlerimde neyi değiştiriyor?</p>`;
+  const id = rid(); const doc = { kind: "note", phase: curStage(p), title: i.t, html, method: i.m || "", createdAt: now(), updatedAt: now() };
   S.items.push({ id, ...doc });
   try { await itemDoc(p.id, id).set(doc); } catch { toast("Belge oluşturulamadı."); return; }
   await updateProject(p.id, { ideas: { ...p.ideas, list: p.ideas.list.map(x => x.id === iid ? { ...x, done: true, noteId: id } : x) } });
@@ -1856,25 +2080,42 @@ function openNote(id) {
       ${tb("bold", "<b>K</b>", "Kalın")}${tb("italic", "<i>İ</i>", "İtalik")}<span class="tsep"></span>
       ${tb("insertUnorderedList", "•", "Madde listesi")}${tb("insertOrderedList", "1.", "Numaralı liste")}${tb("formatBlock", "❝", "Alıntı", "BLOCKQUOTE")}<span class="tsep"></span>
       <button class="tb" data-act="note-img" title="Görsel ekle" aria-label="Görsel ekle">${ICON.img}</button>
-      <button class="tb claude" data-act="src-scan" title="Claude ya da ChatGPT ile web'de makale ve kaynak tara">${ICON_SEARCH}Kaynak tara</button>
-      ${SAMPLE ? `<button class="tb claude" data-act="ai-toggle">${ICON.spark}Claude</button>` : ""}
+      <button class="tb claude" data-act="ai-toggle" id="mBtn" aria-controls="aiPanel"></button>
     </div>
     <div class="doc" id="doc" contenteditable="true" data-ph="Yazmaya başla…" spellcheck="true"></div>
-    <div class="ai" id="aiPanel" hidden>
-      <div class="ai-acts">
-        <button class="btn sm" data-act="ai-run" data-kind="summary">Özetle</button>
-        <button class="btn sm" data-act="ai-run" data-kind="questions">Araştırma soruları öner</button>
-        <button class="btn sm" data-act="ai-run" data-kind="gaps">Eksikleri bul</button>
-        <button class="btn sm" data-act="ai-run" data-kind="insights">İçgörü çıkar</button>
-      </div>
-      <div class="ai-out" id="aiOut"><span class="ai-note">Claude bu belgeyi ve proje brief'ini okuyup yanıt verir.</span></div>
-      <div id="aiInsertRow" hidden><button class="btn sm primary" data-act="ai-insert">Belgeye ekle</button></div>
-    </div>
+    <div class="ai" id="aiPanel" hidden></div>
+    <input type="file" id="csvPick" accept=".csv,text/csv" hidden>
     <div class="ed-foot"><span id="noteStatus">Kaydedildi</span><span id="noteWords"></span></div>
   </div>`;
   $("#noteTitle").value = n.title || "";
   const doc = $("#doc"); doc.innerHTML = sanitize(n.html || "");
-  updateWords();
+  updateWords(); renderMethodPanel();
+}
+/* The document's method decides its tools: one button, one panel. */
+function renderMethodPanel() {
+  const n = S.items.find(x => x.id === S.openNote), btn = $("#mBtn"), pan = $("#aiPanel"); if (!n || !btn || !pan) return;
+  const m = METHODS[n.method] ? n.method : "";
+  btn.innerHTML = `${ICON.spark}<span>${m ? METHODS[m][0] + " araçları" : "Araçlar"}</span>`;
+  const run = (k, l, pri) => SAMPLE ? `<button class="btn sm${pri ? " primary" : ""}" data-act="ai-run" data-kind="${k}">${l}</button>` : "";
+  const acts = {
+    literatur: `<button class="btn sm primary" data-act="src-scan">${ICON_SEARCH}Kaynak tara</button>${run("gaps", "Eksikleri bul")}${run("summary", "Özetle")}`,
+    anket: `<button class="btn sm primary" data-act="survey-make">Anket hazırla</button><button class="btn sm" data-act="csv-pick">Sonuçları yükle (CSV)</button>${run("summary", "Özetle")}`,
+    gorusme: `${run("guide", "Görüşme rehberi hazırla", 1)}${run("insights", "Notlardan içgörü çıkar")}${run("summary", "Özetle")}`,
+    gozlem: `${run("obsplan", "Gözlem planı hazırla", 1)}${run("insights", "Notlardan içgörü çıkar")}${run("summary", "Özetle")}`,
+    inceleme: `${run("compare", "Karşılaştırma kriterleri öner", 1)}${run("gaps", "Eksikleri bul")}${run("summary", "Özetle")}`,
+    "": `${run("summary", "Özetle")}${run("gaps", "Eksikleri bul")}`,
+  }[m];
+  const keepOut = $("#aiOut") && AI.noteId === n.id ? $("#aiOut").innerHTML : "", keepIns = $("#aiInsertRow") && !$("#aiInsertRow").hidden && AI.noteId === n.id;
+  pan.innerHTML = `<div class="m-pick"><span class="eyebrow">Yöntem</span>${Object.entries(METHODS).map(([k, [l]]) => `<button class="mchip${k === m ? " on" : ""}" data-act="note-method" data-m="${k}" aria-pressed="${k === m}">${l}</button>`).join("")}</div>
+    <p class="m-desc">${m ? esc(METHODS[m][1]) : "Bu belgede hangi yöntemle araştırıyorsun? Seçince ona uygun araçlar çıkar."}</p>
+    <div class="ai-acts">${acts}</div>
+    <div class="ai-out" id="aiOut">${keepOut || `<span class="ai-note">Claude bu belgeyi ve proje brief'ini okuyup yanıt verir.</span>`}</div>
+    <div id="aiInsertRow" ${keepIns ? "" : "hidden"}><button class="btn sm primary" data-act="ai-insert">Belgeye ekle</button></div>`;
+}
+async function setNoteMethod(m) {
+  const p = proj(), n = S.items.find(x => x.id === S.openNote); if (!p || !n) return;
+  n.method = n.method === m ? "" : m; renderMethodPanel();
+  try { await itemDoc(p.id, n.id).update({ method: n.method }); } catch { toast("Kaydedilemedi."); }
 }
 function updateWords() { const d = $("#doc"); if (!d) return; const w = (d.innerText.trim().match(/\S+/g) || []).length; $("#noteWords").textContent = `${w} kelime`; }
 const saveNote = debounce(async () => {
@@ -1888,7 +2129,7 @@ const saveNote = debounce(async () => {
 }, 900);
 async function newNote(tpl) {
   const p = proj(); if (!p) return; const t = TEMPLATES[tpl] || TEMPLATES.blank;
-  const id = rid(); const doc = { kind: "note", phase: curStage(p), title: t.title, html: t.html, createdAt: now(), updatedAt: now() };
+  const id = rid(); const doc = { kind: "note", phase: curStage(p), title: t.title, html: t.html, method: t.method || "", createdAt: now(), updatedAt: now() };
   S.items.push({ id, ...doc });
   try { await itemDoc(p.id, id).set(doc); } catch { toast("Belge oluşturulamadı."); return; }
   renderNotes(); openNote(id); renderNotes();
@@ -2406,6 +2647,212 @@ function scanSheet() {
   });
   setTimeout(() => (q.value ? h : q).focus(), 50);
 }
+/* ---------- survey: student drafts first, Claude critiques and completes, Apps Script builds the
+   Google Form in the student's own account, the CSV of responses comes back for a summary ---------- */
+const QTYPE = { coktan: "Tek seçim", coklu: "Çoklu seçim", olcek: "1–5 ölçek", acik: "Açık uçlu", evethayir: "Evet / Hayır" };
+function docSection(re) {
+  const d = $("#doc"); if (!d) return [];
+  const h = [...d.querySelectorAll("h2,h3")].find(x => re.test(x.innerText)); if (!h) return [];
+  const out = []; let el = h.nextElementSibling;
+  while (el && !/^H[1-3]$/.test(el.tagName)) { if (el.tagName === "OL" || el.tagName === "UL") out.push(...[...el.querySelectorAll("li")].map(li => li.innerText.trim())); else out.push(el.innerText.trim()); el = el.nextElementSibling; }
+  return out.filter(t => t && t !== "…" && !/^Kimler, kaç kişi/.test(t));
+}
+function surveyScript(sv) {
+  const data = JSON.stringify({ title: sv.title, desc: sv.desc, qs: sv.qs.map(q => ({ t: q.t, tip: q.tip, s: q.s || [], z: !!q.z })) }, null, 1);
+  return `// Stüdyo Defteri · Google Form oluşturucu
+// script.google.com'da boş projeye yapıştır, üstteki ▶ Çalıştır'a bas.
+// Google bir kez izin ister (kendi hesabın); form senin Drive'ında oluşur.
+var ANKET = ${data};
+
+function anketOlustur() {
+  var form = FormApp.create(ANKET.title);
+  form.setDescription(ANKET.desc);
+  ANKET.qs.forEach(function (q) {
+    var it;
+    if (q.tip === "coktan") { it = form.addMultipleChoiceItem(); it.setChoiceValues(q.s); }
+    else if (q.tip === "coklu") { it = form.addCheckboxItem(); it.setChoiceValues(q.s); }
+    else if (q.tip === "evethayir") { it = form.addMultipleChoiceItem(); it.setChoiceValues(["Evet", "Hayır"]); }
+    else if (q.tip === "olcek") { it = form.addScaleItem(); it.setBounds(1, 5); if (q.s.length === 2) it.setLabels(q.s[0], q.s[1]); }
+    else { it = form.addParagraphTextItem(); }
+    it.setTitle(q.t);
+    it.setRequired(q.z);
+  });
+  Logger.log("Formu düzenle: " + form.getEditUrl());
+  Logger.log("Katılımcılara gönder: " + form.getPublishedUrl());
+}
+`;
+}
+function surveyDocHTML(sv) {
+  return `<h2>Anket soruları (son hâli)</h2><p><b>${esc(sv.title)}</b><br>${esc(sv.desc)}</p><ol>${sv.qs.map(q => `<li>${esc(q.t)} <i>(${QTYPE[q.tip] || q.tip}${(q.s || []).length && q.tip !== "olcek" ? ": " + q.s.map(esc).join(" / ") : q.tip === "olcek" && (q.s || []).length === 2 ? ": 1 = " + esc(q.s[0]) + ", 5 = " + esc(q.s[1]) : ""})</i></li>`).join("")}</ol>`;
+}
+function surveySheet() {
+  const n = S.items.find(x => x.id === S.openNote); if (!n || !SAMPLE) return;
+  const ov = document.createElement("div"); ov.className = "bridge-ov";
+  ov.innerHTML = `<div class="bridge cw sv" role="dialog" aria-modal="true" aria-labelledby="svT">
+    <div class="bridge-h"><h2 id="svT">Anket hazırla</h2><button class="btn icon ghost" data-v="x" aria-label="Kapat">${ICON.x}</button></div>
+    <div class="sv-body">
+      <p class="muted">Önce soruları sen yaz. Claude onları eleştirir (yönlendirici mi, iki şeyi birden mi soruyor, seçenek eksik mi), eksikleri tamamlar ve bu soru için anketin doğru yöntem olup olmadığını söyler.</p>
+      <label class="f" for="svGoal">Ne öğrenmek istiyorsun?</label>
+      <textarea class="bridge-a" id="svGoal" rows="2" placeholder="ör. Türk kahvesini evde kimler, ne sıklıkla ve hangi fincanla içiyor?"></textarea>
+      <label class="f" for="svWho">Kime soracaksın?</label>
+      <input class="inp" id="svWho" placeholder="ör. 20–40 yaş, evde kahve yapan 30+ kişi; arkadaşlar ve sınıf grubu" autocomplete="off">
+      <label class="f" for="svDraft">Soru taslakların <span class="muted">(her satıra bir soru, en az 2)</span></label>
+      <textarea class="bridge-a" id="svDraft" rows="5" placeholder="Haftada kaç kez Türk kahvesi içiyorsunuz?&#10;Kahveyi neyle pişiriyorsunuz?"></textarea>
+      <div class="row"><span style="flex:1"></span><button class="btn primary" data-v="run">${ICON.spark}Claude eleştirsin ve tamamlasın</button></div>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const body = $(".sv-body", ov);
+  $("#svGoal", ov).value = docSection(/öğrenmek/i).join(" ").slice(0, 500) || docSection(/cevaplamak|sorular/i).slice(0, 2).join(" ");
+  $("#svWho", ov).value = docSection(/kime/i).join(" ").slice(0, 200);
+  $("#svDraft", ov).value = docSection(/taslak/i).join("\n");
+  let sv = null;
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  const showResult = r => {
+    sv = { title: r.baslik || n.title || "Anket", desc: r.aciklama || "", qs: r.sorular.map(q => ({ ...q, on: true })) };
+    body.innerHTML = `${r.gerekli === false ? `<div class="sv-warn"><b>Claude bu soru için anketi önermiyor.</b> ${esc(r.neden || "")}${r.alternatif ? ` <b>Bunun yerine:</b> ${esc(r.alternatif)}` : ""}<br><span class="muted">Yine de devam edebilirsin.</span></div>` : r.neden ? `<p class="ai-note">${esc(r.neden)}</p>` : ""}
+      ${(r.elestiri || []).length ? `<h3 class="sv-h">Senin soruların</h3><ul class="sv-crit">${r.elestiri.map(c => `<li><b>${esc(c.soru)}</b><span>${esc(c.sorun)}</span>${c.oneri ? `<em>→ ${esc(c.oneri)}</em>` : ""}</li>`).join("")}</ul>` : ""}
+      <h3 class="sv-h">Son hâli <span class="muted">(istemediklerinin işaretini kaldır)</span></h3>
+      <ul class="cw-list">${sv.qs.map((q, i) => `<li><label><input type="checkbox" class="chk" data-svq="${i}" checked><span class="cw-k k-g">${QTYPE[q.tip] || "Soru"}</span><span class="t">${esc(q.t)}${(q.s || []).length ? `<small>${q.s.map(esc).join(" · ")}</small>` : ""}</span></label></li>`).join("")}</ul>
+      ${r.orneklem ? `<p class="ai-note"><b>Kaç kişi?</b> ${esc(r.orneklem)}</p>` : ""}
+      ${r.kavram && r.kavram.ad ? `<div class="sv-kavram"><b>${esc(r.kavram.ad)}</b> — ${esc(r.kavram.aciklama || "")} <button class="linkbtn" data-v="learn">Öğrendiklerime ekle</button></div>` : ""}
+      <div class="row"><button class="btn" data-v="doc">Belgeye ekle</button><span style="flex:1"></span><button class="btn primary" data-v="form">Google Form oluştur</button></div>`;
+    sv.kavram = r.kavram;
+  };
+  const pick = () => { const qs = sv.qs.filter((q, i) => $(`[data-svq="${i}"]`, ov)?.checked !== false); return { ...sv, qs }; };
+  const saveSv = async s => { const p = proj(); n.survey = { title: s.title, desc: s.desc, qs: s.qs.map(({ on, ...q }) => q) }; try { await itemDoc(p.id, n.id).update({ survey: n.survey }); } catch {} };
+  ov.addEventListener("click", async e => {
+    if (e.target === ov) return close();
+    const b = e.target.closest("[data-v]"); if (!b) return;
+    const k = b.dataset.v;
+    if (k === "x") close();
+    if (k === "run") {
+      const goal = $("#svGoal", ov).value.trim(), who = $("#svWho", ov).value.trim(), draft = $("#svDraft", ov).value.split(/\r?\n/).map(s => s.replace(/^\s*\d+[.)]\s*/, "").trim()).filter(Boolean);
+      if (goal.length < 8) { toast("Önce ne öğrenmek istediğini yaz."); $("#svGoal", ov).focus(); return; }
+      if (draft.length < 2) { toast("En az iki soru taslağı yaz; Claude onları geliştirsin."); $("#svDraft", ov).focus(); return; }
+      const p = proj() || {};
+      const prompt = `Bir endüstriyel tasarım öğrencisinin anketini değerlendir ve tamamla. Türkçe yaz.
+PROJE: ${p.name || "-"} · BRIEF: ${(p.brief || "(yok)").replace(/\s+/g, " ").slice(0, 900)}
+NE ÖĞRENMEK İSTİYOR: ${goal}
+KİME SORACAK: ${who || "(yazmadı)"}
+ÖĞRENCİNİN SORU TASLAKLARI:
+${draft.map((q, i) => `${i + 1}. ${q}`).join("\n")}
+
+YAPILACAKLAR
+1. Önce bu soruya anketin doğru yöntem olup olmadığını değerlendir. Anket "kaç kişi, ne sıklıkla, hangisini tercih ediyor" gibi çok kişiden sayısal cevap gereken sorular içindir. "Neden, nasıl hissediyor, nasıl kullanıyor" için görüşme ya da gözlem, "ne biliniyor, kaç derece" için literatür daha uygundur.
+2. Öğrencinin her sorusunu eleştir: yönlendirici mi, iki şeyi birden mi soruyor, belirsiz mi, seçenekler eksik ya da çakışık mı, cevaplanması zor mu? Sorunsuzsa "iyi" de.
+3. Son anket: öğrencinin sorularını düzeltilmiş hâliyle koru, eksikleri tamamla. Toplam 6–12 soru, 3–5 dakikada biter. 1–2 demografik soru en sonda. En fazla 2 açık uçlu soru. Tek seçimli sorulara gerekirse "Diğer" ekle.
+4. Açıklama metni: amacı, süreyi, yanıtların anonim olduğunu ve yalnızca ders projesinde kullanılacağını söylesin. Ad, e-posta ya da telefon isteyen soru yazma.
+
+Yalnızca şu JSON'u döndür, başka hiçbir metin yazma:
+{"gerekli":true,"neden":"tek cümle","alternatif":"anket gerekmiyorsa ne yapmalı, yoksa boş","elestiri":[{"soru":"öğrencinin sorusu","sorun":"kısa","oneri":"düzeltilmiş hâli ya da boş"}],"baslik":"","aciklama":"","sorular":[{"t":"soru","tip":"coktan|coklu|olcek|acik|evethayir","s":["seçenekler; ölçekte yalnızca 2 uç etiket"],"z":true}],"orneklem":"kaç kişiye ulaşmalı, tek cümle","kavram":{"ad":"anket tasarımıyla ilgili bir kavram","aciklama":"tek cümle"}}`;
+      b.disabled = true; b.innerHTML = `${ICON.spark}Claude düşünüyor…`;
+      try {
+        const res = await SAMPLE(prompt, { cache: false });
+        const m = res.text.match(/\{[\s\S]*\}/); if (!m) throw new Error("parse");
+        const r = JSON.parse(m[0]);
+        r.sorular = (r.sorular || []).filter(q => q && q.t).slice(0, 15).map(q => ({ t: String(q.t).slice(0, 300), tip: QTYPE[q.tip] ? q.tip : "acik", s: (q.s || []).map(String).filter(Boolean).slice(0, 12), z: q.z !== false }));
+        if (!r.sorular.length) throw new Error("empty");
+        showResult(r);
+      } catch (err) { const msg = aiErr(err, "Cevap okunamadı. Tekrar dene."); if (msg) toast(msg); b.disabled = false; b.innerHTML = `${ICON.spark}Claude eleştirsin ve tamamlasın`; }
+    }
+    if (k === "learn" && sv && sv.kavram) { const p = proj(); if (await addLearn(sv.kavram.ad, sv.kavram.aciklama, { pid: p.id, iid: n.id, from: "Anket" })) { b.textContent = "Eklendi ✓"; b.disabled = true; } }
+    if (k === "doc" && sv) { const s = pick(); if (!s.qs.length) { toast("Hiç soru seçili değil."); return; } await saveSv(s); const d = $("#doc"); if (d) { d.insertAdjacentHTML("beforeend", sanitize(surveyDocHTML(s))); NOTE.dirty = true; saveNote(); updateWords(); } toast("Anket belgeye eklendi"); }
+    if (k === "form" && sv) {
+      const s = pick(); if (!s.qs.length) { toast("Hiç soru seçili değil."); return; }
+      await saveSv(s);
+      const code = surveyScript(s);
+      let ok = false; try { await navigator.clipboard.writeText(code); ok = true; } catch {}
+      body.innerHTML = `<h3 class="sv-h">Google Form'u oluştur</h3>
+        <ol class="sv-steps">
+          <li>${ok ? "Kod kopyalandı." : "Aşağıdaki kodu kopyala."} Açılan <b>Apps Script</b> sayfasındaki her şeyi sil ve kodu yapıştır.</li>
+          <li>Üstteki <b>▶ Çalıştır</b>'a bas. Google bir kez izin ister; kendi hesabını seç. "Google bu uygulamayı doğrulamadı" uyarısında <i>Gelişmiş → devam et</i> de; kodu sen çalıştırıyorsun.</li>
+          <li>Alttaki <b>Yürütme günlüğü</b>nde iki bağlantı çıkar: formu düzenleme ve katılımcılara gönderme bağlantısı. Form Drive'ında da durur.</li>
+          <li>Cevaplar gelince Forms'ta <b>Yanıtlar → ⋮ → Yanıtları indir (.csv)</b> yap ve bu belgede <b>Sonuçları yükle (CSV)</b>'ye bas.</li>
+        </ol>
+        <details ${ok ? "" : "open"}><summary>Kodu göster</summary><textarea readonly class="bridge-q sv-code"></textarea></details>
+        <div class="row"><button class="btn" data-v="copy">Kodu tekrar kopyala</button><span style="flex:1"></span><a class="btn primary" href="https://script.google.com/home/projects/create" target="_blank" rel="noopener">Apps Script'i aç</a></div>`;
+      $(".sv-code", ov).value = code;
+      if (!$("#doc") || !$("#doc").innerText.includes("Anket soruları (son hâli)")) { const d = $("#doc"); if (d) { d.insertAdjacentHTML("beforeend", sanitize(surveyDocHTML(s))); NOTE.dirty = true; saveNote(); updateWords(); } }
+    }
+    if (k === "copy") { const c = $(".sv-code", ov); try { await navigator.clipboard.writeText(c.value); toast("Kod kopyalandı"); } catch { c.closest("details").open = true; c.select(); } }
+  });
+  setTimeout(() => ($("#svGoal", ov).value ? $("#svDraft", ov) : $("#svGoal", ov)).focus(), 50);
+}
+/* CSV of Google Forms responses → counts, averages and the open answers, summarised in the document */
+function parseCSV(t) {
+  t = t.replace(/^﻿/, ""); const first = t.split(/\r?\n/)[0] || "";
+  const sep = (first.match(/;/g) || []).length > (first.match(/,/g) || []).length ? ";" : ",";
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < t.length; i++) { const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true; else if (c === sep) { row.push(f); f = ""; } else if (c === "\n") { row.push(f); rows.push(row); row = []; f = ""; } else if (c !== "\r") f += c; }
+  if (f || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(x => x.trim()));
+}
+function analyzeSurvey(rows, sv) {
+  const head = rows[0] || [], data = rows.slice(1), qs = [];
+  const norm = s => String(s || "").toLocaleLowerCase("tr").replace(/\s+/g, " ").trim();
+  head.forEach((h, ci) => {
+    if (ci === 0 && /zaman|timestamp|tarih/i.test(h)) return;
+    if (/e-?posta|email|ad soyad|isim|telefon|phone|name/i.test(h)) return;
+    const vals = data.map(r => (r[ci] || "").trim()).filter(Boolean); if (!vals.length) return;
+    const def = sv && (sv.qs || []).find(q => norm(q.t) === norm(h));
+    let tip = def ? def.tip : null;
+    const nums = vals.map(v => +v.replace(",", ".")), allNum = nums.every(x => !isNaN(x));
+    if (!tip) {
+      const distinct = new Set(vals).size, avgLen = vals.reduce((a, v) => a + v.length, 0) / vals.length;
+      tip = allNum && distinct <= 11 ? "olcek" : avgLen < 22 && (distinct <= 10 || distinct / vals.length < .4) ? "coktan" : "acik";
+    }
+    if (tip === "olcek" && !allNum) tip = "coktan";
+    const q = { t: h, tip, n: vals.length };
+    if (tip === "olcek") { q.avg = nums.reduce((a, b) => a + b, 0) / nums.length; q.counts = countBy(nums.map(String)); q.counts.sort((a, b) => +a[0] - +b[0]); }
+    else if (tip === "acik") q.answers = vals;
+    else { const tokens = tip === "coklu" ? vals.flatMap(v => v.split(/,\s*|;\s*/)).filter(Boolean) : vals; q.counts = countBy(tokens); }
+    qs.push(q);
+  });
+  return { n: data.length, qs };
+}
+function countBy(arr) { const m = new Map(); arr.forEach(v => m.set(v, (m.get(v) || 0) + 1)); return [...m.entries()].sort((a, b) => b[1] - a[1]); }
+function surveyResultHTML(an, themes) {
+  const pct = (c, n) => Math.round(c / n * 100);
+  return `<h2>Anket sonuçları · ${esc(fmtDate(now()))}</h2><p><b>${an.n} yanıt.</b> Sayılar uygulamada hesaplandı${themes ? "; açık uçlu cevapları Claude temalara ayırdı" : ""}.</p>` + an.qs.map(q => {
+    if (q.tip === "acik") return `<h3>${esc(q.t)}</h3><p><i>${q.n} açık uçlu cevap</i></p><ul>${q.answers.slice(0, 40).map(a => `<li>${esc(a.slice(0, 300))}</li>`).join("")}${q.answers.length > 40 ? `<li>… ${q.answers.length - 40} cevap daha (CSV'de)</li>` : ""}</ul>`;
+    return `<h3>${esc(q.t)}</h3>${q.tip === "olcek" ? `<p><b>Ortalama ${q.avg.toFixed(1)}</b> (n=${q.n})</p>` : ""}<ul>${q.counts.slice(0, 12).map(([v, c]) => `<li>${esc(v)} — ${c} (%${pct(c, q.n)})</li>`).join("")}</ul>`;
+  }).join("") + (themes ? `<h2>Açık uçlu cevaplardaki temalar</h2>${mdToDoc(themes)}` : "") + `<h2>Tasarımıma etkisi</h2><p>Bu sonuçlar tasarımımda neyi değiştiriyor? (kendi cümlelerinle)</p>`;
+}
+async function loadSurveyCsv(file) {
+  const n = S.items.find(x => x.id === S.openNote); if (!n) return;
+  let rows; try { rows = parseCSV(await file.text()); } catch { toast("CSV okunamadı."); return; }
+  if (rows.length < 2) { toast("CSV'de yanıt bulunamadı."); return; }
+  const an = analyzeSurvey(rows, n.survey); if (!an.qs.length) { toast("CSV'de soru sütunu bulunamadı."); return; }
+  const open = an.qs.filter(q => q.tip === "acik");
+  const insert = themes => { const d = $("#doc"); if (!d) return; d.insertAdjacentHTML("beforeend", sanitize(surveyResultHTML(an, themes))); NOTE.dirty = true; saveNote(); updateWords(); toast("Sonuçlar belgeye eklendi"); d.lastElementChild?.scrollIntoView({ block: "end", behavior: "smooth" }); };
+  if (!open.length || !SAMPLE) { insert(""); return; }
+  const ov = document.createElement("div"); ov.className = "bridge-ov";
+  ov.innerHTML = `<div class="bridge cw" role="dialog" aria-modal="true"><div class="bridge-h"><h2>Anket sonuçları</h2><button class="btn icon ghost" data-r="x" aria-label="Kapat">${ICON.x}</button></div>
+    <p class="muted"><b>${an.n} yanıt, ${an.qs.length} soru.</b> Sayısal sorular burada sayıldı. ${open.length} açık uçlu soruda ${open.reduce((a, q) => a + q.n, 0)} cevap var.</p>
+    <p class="muted">Açık uçlu cevapları Claude'a temalara ayırtabilirsin. Cevaplar anonim olsa bile kişisel bilgi içeriyorsa önce CSV'den sil.</p>
+    <div class="row"><button class="btn" data-r="plain">Temasız ekle</button><span style="flex:1"></span><button class="btn primary" data-r="themes">${ICON.spark}Claude temalara ayırsın</button></div></div>`;
+  document.body.appendChild(ov);
+  ov.addEventListener("click", async e => {
+    if (e.target === ov) return ov.remove();
+    const b = e.target.closest("[data-r]"); if (!b) return;
+    if (b.dataset.r === "x") return ov.remove();
+    if (b.dataset.r === "plain") { ov.remove(); insert(""); return; }
+    ov.remove();
+    const p = proj() || {};
+    const prompt = `Bir endüstriyel tasarım öğrencisinin anketindeki açık uçlu cevapları temalara ayır. Türkçe yaz.
+PROJE: ${p.name || "-"}
+${open.map(q => `SORU: ${q.t}\nCEVAPLAR:\n${q.answers.map(a => "- " + a.replace(/\s+/g, " ").slice(0, 300)).join("\n")}`).join("\n\n").slice(0, 14000)}
+
+Her soru için 3–5 tema çıkar: "## <soru>" başlığı altında "- **Tema** (kaç cevapta geçiyor): kısa açıklama; örnek alıntı" biçiminde. Cevaplarda olmayan bir şeyi tema yapma. Sonunda "## Dikkat" başlığıyla örneklemin küçüklüğü ya da yanlılığı gibi sınırlamaları 1–2 maddede yaz. Tasarım kararı önerme; bunu öğrenci yazacak.`;
+    try { const r = await SAMPLE(prompt, { cache: false }); insert(r.text); }
+    catch (err) { const m = aiErr(err, "Temalar alınamadı; sonuçlar temasız eklendi."); if (m) toast(m); insert(""); }
+  });
+}
 function mdLite(s) {
   const lines = esc(s).split(/\r?\n/); let out = "", inList = false;
   const inline = t => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
@@ -2427,10 +2874,13 @@ async function runNoteAI(kind) {
     summary: "Bu belgeyi 5-7 maddede özetle. En önemli bulguları öne al.",
     questions: "Bu projede sorulması gereken 8 araştırma sorusu öner: kullanıcı, kullanım bağlamı, ergonomi, malzeme/üretim ve pazar başlıkları altında grupla.",
     gaps: "Bu araştırmada eksik kalan, doğrulanmamış ya da varsayıma dayanan noktaları bul. Her biri için nasıl doğrulanacağını tek cümleyle yaz.",
-    insights: "Bu notlardan tasarım içgörüleri çıkar. Her içgörüyü 'Kullanıcılar … çünkü …, bu yüzden tasarım …' biçiminde yaz. En fazla 6 madde.",
+    insights: "Bu notlardan tasarım içgörüleri çıkar. Her içgörüyü 'Kullanıcılar … çünkü …, bu yüzden tasarım …' biçiminde yaz. En fazla 6 madde. Notlarda dayanağı olmayan içgörü yazma.",
+    guide: "Bu araştırma için 30–40 dakikalık yarı yapılandırılmış bir görüşme rehberi hazırla: ## Isınma (2 soru), ## Ana sorular (6–8 açık uçlu soru; 'en son ne zaman…', 'bana gösterir misin', 'neden' soruları; yönlendirici ya da evet/hayır sorusu yok), ## Gösterme / deneme isteği, ## Kapanış. Sonunda kimlerle ve kaç kişiyle görüşülmesi gerektiğini tek cümleyle öner. Belgede öğrencinin yazdığı sorular varsa onları geliştir ve hangi sorunun neden değiştiğini kısaca söyle.",
+    obsplan: "Bu araştırma için bir gözlem planı hazırla: ## Nerede, ne zaman, kimi (kaç kişi), ## Neye bakmalı (adım adım kullanım, el pozisyonları, zorlanma anları, geçici çözümler, ortam), ## Not şablonu (zaman | ne yaptı | ne fark ettim), ## Fotoğraf ve video için izin hatırlatması. Kısa tut.",
+    compare: "Bu inceleme için ## Karşılaştırma kriterleri (6–8 kriter: ölçüler, malzeme, üretim yöntemi, fiyat aralığı, etkileşim, marka dili, güçlü/zayıf yan gibi; projeye göre seç) ve belgede adı geçen ürünleri bu kriterlerle karşılaştırmak için ## Tablo yapısı öner (satır başına ürün; '- Ürün: kriter1 … / kriter2 …'). Bilmediğin ürün verisini uydurma; 'kontrol et' yaz. Sonunda hangi ürünlerin eksik kaldığını söyle.",
   }[kind];
   const prompt = `Sen bir endüstriyel tasarım öğrencisine yardım eden deneyimli bir tasarım araştırmacısısın. Türkçe yaz. Kısa ve somut ol. Markdown'da yalnızca ## başlık, - madde ve **kalın** kullan.\n\nPROJE: ${p?.name || ""}\nBRIEF: ${p?.brief || "(yok)"}\n\nBELGE:\n"""\n${text || "(belge boş)"}\n"""\n\nGÖREV: ${ask}`;
-  const out = $("#aiOut"); out.innerHTML = `<span class="ai-note">Claude düşünüyor…</span>`; $("#aiInsertRow").hidden = true;
+  const out = $("#aiOut"); out.innerHTML = `<span class="ai-note">Claude düşünüyor…</span>`; $("#aiInsertRow").hidden = true; AI.noteId = S.openNote;
   if (AI.ctl) AI.ctl.abort(); AI.ctl = new AbortController();
   try {
     const r = await SAMPLE(prompt, { signal: AI.ctl.signal, cache: false, onText: ({ text }) => { out.innerHTML = mdLite(text); } });
@@ -2524,6 +2974,7 @@ function planShell() {
       <div class="brief-foot" id="briefFoot"></div>
     </section>
     <div id="planBody"></div>
+    <div id="methods"></div>
     <div id="decisions"></div>
     <section class="sec"><div class="sec-head"><h2>Görevler</h2><button class="btn sm ghost" data-act="cal-open" title="Jürileri ve görevleri iPhone takvimine aktar">${ICON_CAL}Takvime ekle</button></div>
       <div id="calPanel" hidden></div>
@@ -2586,6 +3037,7 @@ function renderPlan() {
     } else host.innerHTML = `<div class="plan-hint">${ICON.spark}<div><b>Brief'ten plan çıkar</b><p>Brief'i yapıştır ya da PDF / fotoğrafını yükle ve <b>Claude ile plan çıkar</b>'a bas. Claude brief'teki jüri tarihlerini ve teslim listesini bulur, aşamaları bunlara göre böler, görevler, araştırma soruları ve konsept kriterleri önerir. Sen onaylamadan hiçbir şey eklenmez.</p></div></div>`;
   }
   renderClaudeCard();
+  renderMethods();
   renderDecisions();
   renderTasks();
 }
@@ -2603,6 +3055,7 @@ function draftHTML(d) {
     <h3 class="pd-h">Görevler <span>${nOn}/${d.gorevler.length} seçili</span></h3>
     <ul class="pd-tasks">${d.gorevler.map((g, i) => `<li><label><input type="checkbox" class="chk" data-dtask="${i}" ${g.off ? "" : "checked"}><span class="t">${esc(g.t)}</span><small>${stageName(g.asama)}</small>${dueLabel(g.tarih)}</label></li>`).join("")}</ul>
     ${d.teslimler.length ? `<label class="pd-opt"><input type="checkbox" class="chk" id="dT" ${d.noT ? "" : "checked"}><span><b>Teslim kontrol listesi</b> oluştur (${d.teslimler.length} kalem)<small>${d.teslimler.slice(0, 3).map(esc).join(" · ")}${d.teslimler.length > 3 ? " …" : ""}</small></span></label>` : ""}
+    ${d.yontemler.length ? `<label class="pd-opt"><input type="checkbox" class="chk" id="dM" ${d.noM ? "" : "checked"}><span><b>Yöntemler</b> listesine ekle (${d.yontemler.length})<small>${d.yontemler.map(y => esc(LIB[y.k][0])).join(" · ")}</small></span></label>` : ""}
     ${d.sorular.length ? `<label class="pd-opt"><input type="checkbox" class="chk" id="dQ" ${d.noQ ? "" : "checked"}><span><b>Araştırma soruları</b> belgesi oluştur (${d.sorular.length} soru)<small>${d.sorular.slice(0, 2).map(esc).join(" · ")}${d.sorular.length > 2 ? " …" : ""}</small></span></label>` : ""}
     ${d.kriterler.length ? `<label class="pd-opt"><input type="checkbox" class="chk" id="dC" ${d.noC ? "" : "checked"}><span><b>Matrise kriter</b> olarak ekle<small>${d.kriterler.map(c => esc(c.n)).join(" · ")}</small></span></label>` : ""}
     ${d.riskler.length ? `<div class="pd-risk"><b>Dikkat:</b><ul>${d.riskler.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div>` : ""}
@@ -2628,6 +3081,7 @@ function cleanPlan(raw, p, due) {
     kilometre: (raw.kilometre || []).filter(m => m && m.t && iso(m.tarih) && m.tarih >= t && m.tarih <= due).map(m => ({ t: String(m.t).slice(0, 80), tarih: m.tarih })).sort((a, b) => a.tarih.localeCompare(b.tarih)).slice(0, 10),
     teslimler: (raw.teslimler || []).map(x => String(x).trim()).filter(Boolean).slice(0, 12).map(x => x.slice(0, 140)),
     notlar: (raw.notlar || []).filter(n => n && n.n && +n.yuzde > 0).slice(0, 10).map(n => ({ n: String(n.n).slice(0, 50), yuzde: Math.round(+n.yuzde) })),
+    yontemler: (raw.yontemler || []).filter((y, i, a) => y && LIB[y.k] && a.findIndex(z => z && z.k === y.k) === i).slice(0, 10).map(y => ({ k: y.k, why: String(y.neden || "").slice(0, 200) })),
     due, dueFound: !p.due,
   };
 }
@@ -2663,9 +3117,11 @@ KURALLAR
 - kriterler: konseptleri karşılaştırmak için brief'e özgü 4–6 kriter (en fazla 5 kelime). w: 3 = brief'in çekirdeği, 2 = önemli, 1 = artı. Notlandırma varsa ağırlıkları ona göre seç.
 - riskler: en fazla 3 kısa madde. Brief'te belirsiz ya da eksik bir şey varsa (ölçü, kullanıcı, teslim formatı) "Hocaya sor: …" diye yaz.
 - ozet: brief'i nasıl anladığını 1–2 cümleyle yaz.
+- yontemler: aşağıdaki kütüphaneden brief'in gerçekten gerektirdiği 5–9 tasarım yöntemi; "k" anahtar, "neden" bu projede neden (tek cümle). Her proje anket, persona ya da odak grubu gerektirmez; zaman azsa daha az seç. Teslim listesindeki kalemleri (storyboard, teknik çizim, maket…) karşılayan yöntemleri dahil et. Yalnızca bu anahtarları kullan:
+${libKeysPrompt()}
 
 Yalnızca şu biçimde JSON döndür, başka hiçbir metin yazma:
-{"ozet":"","teslim":"YYYY-MM-DD","kilometre":[{"t":"","tarih":"YYYY-MM-DD"}],"asamalar":[{"k":"${PSTAGES[from][0]}","bas":"YYYY-MM-DD","bit":"YYYY-MM-DD","hedef":""}],"gorevler":[{"t":"","tarih":"YYYY-MM-DD","asama":"${PSTAGES[from][0]}"}],"teslimler":[""],"notlar":[{"n":"","yuzde":20}],"sorular":[""],"kriterler":[{"n":"","w":3}],"riskler":[""]}`;
+{"ozet":"","teslim":"YYYY-MM-DD","kilometre":[{"t":"","tarih":"YYYY-MM-DD"}],"asamalar":[{"k":"${PSTAGES[from][0]}","bas":"YYYY-MM-DD","bit":"YYYY-MM-DD","hedef":""}],"gorevler":[{"t":"","tarih":"YYYY-MM-DD","asama":"${PSTAGES[from][0]}"}],"teslimler":[""],"notlar":[{"n":"","yuzde":20}],"sorular":[""],"kriterler":[{"n":"","w":3}],"riskler":[""],"yontemler":[{"k":"","neden":""}]}`;
   try {
     const r = await SAMPLE(prompt, { cache: false, modelTier: "default" });
     const m = r.text.match(/\{[\s\S]*\}/); if (!m) throw new Error("parse");
@@ -2687,6 +3143,7 @@ async function applyPlan() {
     .concat(d.gorevler.filter(g => !g.off).map(g => ({ id: rid(), t: g.t, due: g.tarih, done: false, phase: g.asama, plan: true })));
   const patch = { tasks: (p.tasks || []).filter(t => t.done || !t.plan).concat(add), plan: { stages: d.asamalar, ozet: d.ozet, riskler: d.riskler, kilometre: d.kilometre, notlar: d.notlar, at: now() } };
   if (!p.due) patch.due = d.due;
+  if (!d.noM && d.yontemler.length) { const have = new Set((p.methods || []).map(x => x.k)); patch.methods = (p.methods || []).concat(d.yontemler.filter(y => !have.has(y.k)).map(y => ({ k: y.k, why: y.why, done: false }))); }
   if (!d.noT && d.teslimler.length) { const old = p.checklist || []; patch.checklist = d.teslimler.map(t => ({ id: rid(), t, done: !!(old.find(o => o.t === t) || {}).done })); }
   if (!d.noC && d.kriterler.length) { const m = mxOf(p), have = new Set(m.crit.map(c => (c.n || "").toLocaleLowerCase("tr"))); d.kriterler.forEach(c => { if (!have.has(c.n.toLocaleLowerCase("tr"))) m.crit.push({ id: rid(), n: c.n, w: c.w }); }); patch.matrix = m; }
   delete S.drafts[p.id];
@@ -3343,6 +3800,16 @@ const ACT = {
   "paper-sketch": () => $("#paperPick")?.click(),
   "ideas-make": () => makeIdeas(),
   "src-scan": () => scanSheet(),
+  "note-method": el => setNoteMethod(el.dataset.m),
+  "survey-make": () => surveySheet(),
+  "csv-pick": () => $("#csvPick")?.click(),
+  "m-start": el => startMethod(el.dataset.k),
+  "m-done": el => { const p = proj(); if (!p) return; updateProject(p.id, { methods: (p.methods || []).map(x => x.k === el.dataset.k ? { ...x, done: el.checked } : x) }).then(renderMethods); },
+  "m-del": el => { const p = proj(); if (!p) return; updateProject(p.id, { methods: (p.methods || []).filter(x => x.k !== el.dataset.k) }).then(renderMethods); },
+  "m-lib": () => libSheet(),
+  "m-suggest": () => suggestMethods(),
+  "m-draft-ok": () => acceptMethodDraft(),
+  "m-draft-no": () => { const p = proj(); if (p && S.mDraft) delete S.mDraft[p.id]; renderMethods(); },
   "cw-pack": () => claudePack(),
   "cw-go": () => claudeGo(),
   "cw-reply": () => replySheet(),
@@ -3388,6 +3855,7 @@ document.addEventListener("change", e => {
   if (t.id === "ptitle") { updateProject(S.route.pid, { name: t.value.trim() || "Adsız proje" }); renderSide(); }
   if (t.id === "pdue" || t.id === "planDue") { const p = proj(); if (p) p.due = t.value; updateProject(S.route.pid, { due: t.value }); fillHeader(proj(), true); if (S.route.tab === "plan") renderPlan(); }
   if (t.id === "briefFile") { const f = t.files[0]; t.value = ""; if (f) loadBriefFile(f); }
+  if (t.id === "csvPick") { const f = t.files[0]; t.value = ""; if (f) loadSurveyCsv(f); }
   if (t.name === "aimode" || t.id === "setKey" || t.id === "setModel") {
     const c = AICFG();
     if (t.name === "aimode") c.mode = t.value;
@@ -3399,6 +3867,8 @@ document.addEventListener("change", e => {
   if (t.id === "setCid") { lsSet("sd-gcid", t.value.trim()); toast("Kaydedildi"); }
   if (t.id === "backupPick") { const f = t.files[0]; t.value = ""; if (f) backupLoad(f); }
   if (t.dataset.dtask !== undefined) { const p = proj(), d = p && S.drafts[p.id]; if (d && d.gorevler[+t.dataset.dtask]) { d.gorevler[+t.dataset.dtask].off = !t.checked; const h = document.querySelector(".pd-h span"); if (h) h.textContent = `${d.gorevler.filter(g => !g.off).length}/${d.gorevler.length} seçili`; } }
+  if (t.dataset && t.dataset.mdi !== undefined) { const p = proj(), dr = p && S.mDraft && S.mDraft[p.id]; if (dr && dr.list[+t.dataset.mdi]) dr.list[+t.dataset.mdi].off = !t.checked; }
+  if (t.id === "dM") { const p = proj(), d = p && S.drafts[p.id]; if (d) d.noM = !t.checked; }
   if (t.id === "dQ" || t.id === "dC" || t.id === "dT") { const p = proj(), d = p && S.drafts[p.id]; if (d) d[{ dQ: "noQ", dC: "noC", dT: "noT" }[t.id]] = !t.checked; }
   if (t.id === "pcourse") { updateProject(S.route.pid, { course: t.value.trim() }); fillHeader(proj()); }
   if (t.dataset.stagesel) { t.blur(); setItemStage(t.dataset.stagesel, t.value); }
