@@ -635,6 +635,11 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;text-wrap:balance;margin
 .iter-arrow{align-self:center;color:var(--ink-3);flex:0 0 auto;font-size:18px;margin-top:-30px}
 .sk-note{font-size:12.5px;color:var(--ink-2);margin:0;line-height:1.4}
 .sk-it{align-self:flex-start}
+.sk-news{display:grid;grid-template-rows:1fr 1fr;gap:10px;aspect-ratio:297/210;align-self:start;min-width:0}
+.sk-news .sk-new{aspect-ratio:auto;height:100%;flex-direction:row;gap:10px;flex-wrap:wrap;align-content:center;padding:0 10px}
+.sk-news .sk-new small{flex-basis:100%;text-align:center}
+.sk-news .sk-new svg{width:22px;height:22px}
+.sk-tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.55);color:#fff;font:600 11px/1 var(--f-body);padding:5px 7px;border-radius:6px;pointer-events:none;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .crit-concept{border-top:1px solid var(--line);padding:10px 14px;font-size:13px;background:var(--accent-soft);display:flex;flex-direction:column;gap:8px}
 .learn-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) auto;gap:8px;max-width:820px}
 .learn-form input{border:1px solid var(--line-2);border-radius:10px;background:var(--raised);padding:9px 12px;font-size:14px;color:var(--ink);min-width:0}
@@ -1386,7 +1391,7 @@ function mountTab() {
   if (selTab && tabsEl && tabsEl.scrollWidth > tabsEl.clientWidth) tabsEl.scrollLeft = selTab.offsetLeft - (tabsEl.clientWidth - selTab.offsetWidth) / 2;
   if (tab === "surec") body.innerHTML = `<div id="process"></div>`;
   if (tab === "matris") body.innerHTML = `<div id="matrix"></div>`;
-  if (tab === "eskiz") body.innerHTML = `<div class="skgrid" id="skgrid"></div>`;
+  if (tab === "eskiz") body.innerHTML = `<div class="skgrid" id="skgrid"></div><input type="file" accept="image/*" multiple id="paperPick" hidden><span class="uploading" id="paperState" role="status"></span>`;
   if (tab === "arastirma") { body.innerHTML = researchShell(); S.openNote = null; }
   if (tab === "pano") body.innerHTML = boardShell();
   if (tab === "kritik") { subscribeLearn(); S.editCrit = null; body.innerHTML = `<div class="crit-top"><button class="btn primary" data-act="crit-new">${ICON.plus}Yeni kritik</button><span class="ai-note">Derste aldığın kritikleri tarihi, dersi ve ne gösterdiğinle birlikte kaydet.</span></div><div id="critNew" hidden></div><div class="critlist" id="critList"></div>`; }
@@ -1415,11 +1420,12 @@ function renderSketches() {
         ${(s.thumb || (s.thumb = quickThumb(s))) ? `<img class="sk-thumb" src="${esc(s.thumb)}" alt="">` : `<span class="sk-thumb"></span>`}
         <span class="sk-cap"><b>${esc(s.title || "Eskiz")}</b><span>${fmtDate(s.updatedAt || s.createdAt || now())}</span></span>
       </button>
+      ${s.paper ? `<span class="sk-tag">Kâğıt</span>` : ""}
       ${s.note ? `<p class="sk-note">${esc(s.note)}</p>` : ""}
       ${last ? `<button class="btn sm ghost sk-it" data-act="sk-iter" data-id="${s.id}" title="Bu eskizden bir sonraki sürümü başlat">${ICON.plus}Yeni sürüm</button>` : ""}
       <button class="btn sm icon sk-del" data-act="del-item" data-id="${s.id}" aria-label="Eskizi sil">${ICON.trash}</button>
     </div>`;
-  g.innerHTML = `<button class="sk-new" data-act="new-sketch">${ICON.plus}<span>Yeni eskiz</span><small>A4 yatay · 297×210 mm</small></button>` +
+  g.innerHTML = `<div class="sk-news"><button class="sk-new" data-act="new-sketch">${ICON.plus}<span>Yeni eskiz</span><small>Tablette çiz · A4 yatay</small></button>${ASSETS ? `<button class="sk-new" data-act="paper-sketch">${ICON_CAM}<span>Kâğıttan ekle</span><small>Fotoğraf çek ya da seç</small></button>` : ""}</div>` +
     [...groups.values()].map(list => {
       if (list.length === 1) return card(list[0], true);
       list.sort((a, b) => (a.ver || 1) - (b.ver || 1));
@@ -1428,6 +1434,72 @@ function renderSketches() {
         <div class="iter-row">${list.map((s, i) => (i ? `<span class="iter-arrow" aria-hidden="true">→</span>` : "") + card(s, i === list.length - 1)).join("")}</div></div>`;
     }).join("");
 }
+/* Paper sketches: photo -> cleaned (white paper, crisp lines) -> fitted onto the A4 page as the
+   sketch background, so it can be annotated, versioned and critiqued like a tablet sketch. */
+const ICON_CAM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>';
+async function paperToPage(file) {
+  const bmp = await createImageBitmap(file).catch(() => null); if (!bmp) return null;
+  const k = Math.min(1, 2400 / Math.max(bmp.width, bmp.height));
+  const w = Math.max(1, Math.round(bmp.width * k)), h = Math.max(1, Math.round(bmp.height * k));
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+  const c = cv.getContext("2d", { willReadFrequently: true }); c.drawImage(bmp, 0, 0, w, h);
+  const im = c.getImageData(0, 0, w, h), d = im.data;
+  // 1) estimate the paper colour region by region (a bright percentile in each 32px cell),
+  //    smooth it, and divide it out: shadows, uneven light and colour casts disappear.
+  const CS = 24, gw = Math.ceil(w / CS), gh = Math.ceil(h / CS);
+  const small = document.createElement("canvas"); small.width = gw; small.height = gh;
+  const sc = small.getContext("2d"), sm = sc.createImageData(gw, gh);
+  const buf = [[], [], []];
+  for (let gy = 0; gy < gh; gy++) for (let gx = 0; gx < gw; gx++) {
+    buf[0].length = buf[1].length = buf[2].length = 0;
+    for (let y = gy * CS; y < Math.min(h, gy * CS + CS); y += 3) for (let x = gx * CS; x < Math.min(w, gx * CS + CS); x += 3) {
+      const i = (y * w + x) * 4; buf[0].push(d[i]); buf[1].push(d[i + 1]); buf[2].push(d[i + 2]);
+    }
+    const o = (gy * gw + gx) * 4;
+    for (let ch = 0; ch < 3; ch++) { const a = buf[ch].sort((p, q) => p - q); sm.data[o + ch] = a[Math.floor(a.length * .85)] || 255; }
+    sm.data[o + 3] = 255;
+  }
+  sc.putImageData(sm, 0, 0);
+  const bgc = document.createElement("canvas"); bgc.width = w; bgc.height = h;
+  const bx = bgc.getContext("2d"); bx.imageSmoothingQuality = "high"; bx.filter = "blur(14px)"; bx.drawImage(small, 0, 0, w, h);
+  const bd = bx.getImageData(0, 0, w, h).data;
+  for (let i = 0; i < d.length; i += 4) for (let ch = 0; ch < 3; ch++) d[i + ch] = Math.min(255, d[i + ch] * 255 / Math.max(40, bd[i + ch]));
+  // 2) gentle contrast: near-white becomes pure white, ink gets a little darker
+  const hist = new Uint32Array(256); let n = 0;
+  for (let i = 0; i < d.length; i += 16) { hist[(d[i] + d[i + 1] + d[i + 2]) / 3 | 0]++; n++; }
+  let lo = 0; for (let s = 0; lo < 255; lo++) { s += hist[lo]; if (s >= n * .005) break; }
+  lo = Math.min(lo, 120);
+  const lut = new Uint8ClampedArray(256);
+  for (let v = 0; v < 256; v++) { const x = Math.max(0, Math.min(1, (v - lo) / (242 - lo))); lut[v] = Math.round(Math.pow(x, 1.25) * 255); }
+  for (let i = 0; i < d.length; i += 4) { d[i] = lut[d[i]]; d[i + 1] = lut[d[i + 1]]; d[i + 2] = lut[d[i + 2]]; }
+  c.putImageData(im, 0, 0);
+  const pg = document.createElement("canvas"); pg.width = W; pg.height = H; const g = pg.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  const s = Math.min(W / w, H / h) * .97, dw = w * s, dh = h * s;
+  g.imageSmoothingQuality = "high"; g.drawImage(cv, (W - dw) / 2, (H - dh) / 2, dw, dh);
+  const tc = document.createElement("canvas"); tc.width = 420; tc.height = Math.round(420 * H / W); tc.getContext("2d").drawImage(pg, 0, 0, tc.width, tc.height);
+  const blob = await new Promise(r => pg.toBlob(r, "image/jpeg", .85));
+  return blob ? { blob, thumb: tc.toDataURL("image/jpeg", .72) } : null;
+}
+async function addPaperSketches(files) {
+  const p = proj(); if (!p || !ASSETS) return;
+  const list = files.filter(f => f.type.startsWith("image/") || !f.type); if (!list.length) return;
+  const st = $("#paperState");
+  for (let i = 0; i < list.length; i++) {
+    if (st) st.textContent = `Fotoğraf hazırlanıyor ${i + 1}/${list.length}…`;
+    const pg = await paperToPage(list[i]);
+    if (!pg) { toast("Bu fotoğraf açılamadı. JPG ya da PNG dene."); continue; }
+    let r; try { r = await ASSETS.upload(pg.blob, { type: "image/jpeg" }); } catch { toast("Fotoğraf kaydedilemedi (depolama dolu olabilir)."); continue; }
+    const n = itemsOf("sketch").filter(x => x.paper).length + 1;
+    const id = rid();
+    const doc = { kind: "sketch", phase: curStage(p), title: `Kâğıt eskiz ${String(n).padStart(2, "0")}`, strokes: [], layers: [{ id: rid(), name: "Notlar", vis: true, op: 1, strokes: [] }], active: 0, bg: r.id, guide: "none", paper: true, thumb: pg.thumb, createdAt: now(), updatedAt: now() };
+    S.items.push({ id, ...doc }); renderSketches(); updateTabCounts();
+    try { await itemDoc(p.id, id).set(doc); } catch { toast("Eskiz kaydedilemedi."); }
+  }
+  if (st) st.textContent = "";
+  toast(list.length > 1 ? `${list.length} kâğıt eskiz eklendi` : "Kâğıt eskiz eklendi. Açıp üstüne not alabilirsin.");
+}
+
 /* Iterations: copy the latest version, ask what will change and why. */
 async function newIteration(id) {
   const p = proj(); const src = S.items.find(x => x.id === id); if (!p || !src) return;
@@ -2732,6 +2804,7 @@ const ACT = {
   "learn-sum": () => learnSummary(),
   "img-ai": () => imageBridge({ pid: S.route.pid }),
   "sk-iter": el => newIteration(el.dataset.id),
+  "paper-sketch": () => $("#paperPick")?.click(),
   "prac-start": el => startPractice(el.dataset.ex),
   "crit-new": () => { const w = $("#critNew"); if (!w) return; S.editCrit = null; w.innerHTML = critFormHTML(); w.hidden = false; renderCrits(); setTimeout(() => $("#cfText")?.focus(), 30); },
   "crit-cancel": () => { S.editCrit = null; const w = $("#critNew"); if (w) { w.hidden = true; w.innerHTML = ""; } document.activeElement?.blur?.(); renderCrits(); },
@@ -2790,6 +2863,7 @@ document.addEventListener("change", e => {
   if (t.dataset.mxcon || t.dataset.mxcrit) { const p = proj(); if (p) saveMx.flush(p.id); }
   if (t.dataset.cap) { const p = proj(); const it = S.items.find(x => x.id === t.dataset.cap); if (p && it) { it.caption = t.value; itemDoc(p.id, it.id).update({ caption: t.value, updatedAt: now() }).catch(() => toast("Not kaydedilemedi.")); } }
   if (t.id === "filePick") { addBoardImages(t.files); t.value = ""; }
+  if (t.id === "paperPick") { const fs = [...t.files]; t.value = ""; addPaperSketches(fs); }
   if (t.id === "noteImgPick") { const f = t.files[0]; t.value = ""; if (f) insertNoteImage(f); }
 });
 document.addEventListener("input", e => {
@@ -2971,7 +3045,7 @@ class Sketch {
   constructor(it) {
     this.id = it.id; this.pid = S.route.pid; this.title = it.title || "Eskiz";
     this.layers = normLayers(it); this.active = Math.max(0, Math.min(typeof it.active === "number" ? it.active : this.layers.length - 1, this.layers.length - 1));
-    this.bg = it.bg || null; this.guide = it.guide === "persp" ? "p2" : (it.guide || "dots");
+    this.bg = it.bg || null; this.paper = !!it.paper; this.guide = it.guide === "persp" ? "p2" : (it.guide || "dots");
     this.gcfg = Object.assign({ hy: .42, l: .25, r: .25, cx: .5, v3: 2.4 }, it.gcfg || {});
     this.guides = Array.isArray(it.guides) ? JSON.parse(JSON.stringify(it.guides)) : [];
     this.gEdit = false; this.gSel = null; this.gDrag = null; this.layersOpen = SKPREF.layersOpen !== false && window.innerWidth >= 700;
@@ -3385,7 +3459,7 @@ class Sketch {
       <button class="ly-eye" data-lk="vis" data-li="${i}" aria-pressed="${l.vis}" aria-label="${l.vis ? "Katmanı gizle" : "Katmanı göster"}">${l.vis ? ICON.eye : ICON.eyeOff}</button>
       <button class="ly-name" data-lk="sel" data-li="${i}">${esc(l.name)}</button>
       <span class="ly-n">${l.strokes.length}</span></div>`).join("");
-    const base = this.bg ? `<div class="ly base"><span class="ly-eye"></span><span class="ly-name">Birleştirilmiş taban</span><button class="btn sm icon ghost" data-lk="delbg" aria-label="Birleştirilmiş tabanı sil">${ICON.trash}</button></div>` : "";
+    const base = this.bg ? `<div class="ly base"><span class="ly-eye"></span><span class="ly-name">${this.paper ? "Kâğıt fotoğrafı" : "Birleştirilmiş taban"}</span><button class="btn sm icon ghost" data-lk="delbg" aria-label="${this.paper ? "Kâğıt fotoğrafını sil" : "Birleştirilmiş tabanı sil"}">${ICON.trash}</button></div>` : "";
     el.innerHTML = `<header><b>Katmanlar</b><button class="btn sm" data-lk="add">${ICON.plus}Yeni</button></header>
       <div class="ly-list">${rows}${base}</div>
       <div class="ly-ctl">
@@ -3472,7 +3546,7 @@ class Sketch {
     const c = cv.getContext("2d"); c.scale(cv.width / W, cv.height / H); this.paintArt(c, false);
     const blob = await new Promise(r => cv.toBlob(r, "image/jpeg", .85));
     const p = S.projects.find(x => x.id === this.pid);
-    const prompt = `Ekteki görsel, bir endüstriyel tasarım öğrencisinin tablette çizdiği bir eskiz. Proje: ${p?.name || "-"}. Brief: ${p?.brief || "(yok)"}.
+    const prompt = `Ekteki görsel, bir endüstriyel tasarım öğrencisinin ${this.paper ? "kâğıda çizip fotoğrafladığı (üstüne tabletle not almış olabilir)" : "tablette çizdiği"} bir eskiz. Proje: ${p?.name || "-"}. Brief: ${p?.brief || "(yok)"}.
 Öğrencinin kendi değerlendirmesi: ${self ? `"${self}"` : "(yazmadı)"}
 Sen deneyimli bir tasarım eğitmenisin. Amacın öğrencinin kendi gözünü geliştirmek: hazır çözüm verme, cevabı onun bulmasını sağla. Türkçe yaz. Markdown'da yalnızca ## başlık, - madde ve **kalın** kullan. Başlıklar:
 ## Gördüğüm
