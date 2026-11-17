@@ -2,7 +2,7 @@
    App files: network first (so updates arrive), cache as fallback when offline.
    Libraries and fonts from CDNs: cache first (their URLs are versioned).
    Google and Anthropic API calls are never cached. */
-const VERSION = "sd-v3";
+const VERSION = "sd-v4";
 const APP = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"];
 const CDN = /^https:\/\/(cdnjs\.cloudflare\.com|cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 
