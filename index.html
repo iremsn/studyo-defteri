@@ -767,6 +767,7 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .tc-sk small{font-size:12.5px;color:var(--ink-3)}
 /* claude work sheet + decisions */
 .cw-ctx{min-height:160px}
+#cwCard:not(:empty){margin-top:24px}
 .cw-card{background:linear-gradient(135deg,var(--accent-soft),var(--surface) 70%)}
 .cw-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
 .cw-ic{flex:none;width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center}
@@ -1512,7 +1513,7 @@ function mountTab() {
     <section class="sec" id="secMatris"><div class="sec-head"><h2>Konseptleri karşılaştır</h2><span class="eyebrow">Matris</span></div><div id="matrix"></div></section>`;
   if (tab === "arastirma") { body.innerHTML = researchShell() + `<section class="sec" id="secPano"><div class="sec-head"><h2>Görsel pano</h2><span class="eyebrow">Referanslar</span></div>${boardShell()}</section>`; S.openNote = null; }
   if (tab === "kritik") { subscribeLearn(); S.editCrit = null; body.innerHTML = `<div class="crit-top"><button class="btn primary" data-act="crit-new">${ICON.plus}Yeni kritik</button><span class="ai-note">Derste aldığın kritikleri tarihi, dersi ve ne gösterdiğinle birlikte kaydet.</span></div><div id="critNew" hidden></div><div class="critlist" id="critList"></div>`; }
-  if (tab === "plan") { body.innerHTML = planShell() + `<section class="sec" id="secSurec"><div class="sec-head"><h2>Süreç</h2><span class="eyebrow">Aşamalar</span></div><div id="process"></div></section>`; fillHeader(proj(), true); }
+  if (tab === "plan") { body.innerHTML = planShell() + `<section class="sec" id="secSurec"><div class="sec-head"><h2>Süreç</h2><span class="eyebrow">Aşamalar</span></div><div id="process"></div></section><div id="cwCard"></div>`; fillHeader(proj(), true); }
   refreshTab(); updateTabCounts();
   if (S.jump) { const el = document.getElementById(S.jump); S.jump = null; if (el) setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 60); }
 }
@@ -2478,7 +2479,7 @@ async function setProjectStage(k) {
   const dates = { ...(p.stageDates || {}) }; if (!dates[k]) dates[k] = todayISO();
   const wasCw = !!CW_STAGES[curStage(p)];
   await updateProject(p.id, { stage: k, stageDates: dates }); renderProcess(); renderClaudeCard();
-  toast(CW_STAGES[k] && !wasCw ? `Proje “${stageName(k)}” aşamasında. Plan'ın en üstünde “Claude'da devam et” belirdi.` : `Proje “${stageName(k)}” aşamasında`);
+  toast(CW_STAGES[k] && !wasCw ? `Proje “${stageName(k)}” aşamasında. Sayfanın en altında “Claude'da devam et” belirdi.` : `Proje “${stageName(k)}” aşamasında`);
 }
 async function setItemStage(id, k) {
   const p = proj(); const it = S.items.find(x => x.id === id); if (!p || !it || it.phase === k || !stageName(k)) return;
@@ -2516,7 +2517,7 @@ function togglePinfo(force) {
   const open = force ?? box.hidden; box.hidden = !open; b?.setAttribute("aria-expanded", open);
 }
 function planShell() {
-  return `<div id="cwCard"></div><section class="card brief-card">
+  return `<section class="card brief-card">
       <div class="card-h"><h2>Brief</h2><button class="btn sm ghost" data-act="brief-file" title="PDF, fotoğraf ya da metin dosyası">${ICON.dl.replace('M12 4v11M7 10l5 5 5-5', 'M12 15V4M7 9l5-5 5 5')}Dosyadan yükle</button><input type="file" id="briefFile" accept="application/pdf,.pdf,image/*,.txt,.md" hidden></div>
       <textarea class="brief" id="pbrief" rows="5" placeholder="Hocanın verdiği brief'i buraya yapıştır ya da PDF / fotoğrafını yükle. Kullanıcı kim, problem ne, kısıtlar, teslim formatı…"></textarea>
       <div class="brief-foot" id="briefFoot"></div>
