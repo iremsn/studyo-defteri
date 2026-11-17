@@ -561,7 +561,16 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;text-wrap:balance;margin
   .skx-info{display:none}
   .lpanel{left:max(12px,env(safe-area-inset-left,0px));width:auto;top:auto;bottom:calc(84px + env(safe-area-inset-bottom,0px));max-height:48%}
   .skx-bar .hide-sm{display:none}
+  .skx-bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .skx-bar::-webkit-scrollbar{display:none}
+  .skx-bar .btn,.skx-bar .grp{flex:0 0 auto}
+  .skx-title{flex:0 0 120px}
+  .skx-bar .show-sm{display:inline}
+  .skx-bar>*{order:2}
+  .skx-bar>[data-k=close],.skx-bar>.skx-title{order:0}
+  .skx-bar>.grp:last-child{order:1}
 }
+@media (min-width:701px){.skx-bar .show-sm{display:none}}
 
 @media (max-width:860px){
   .app{grid-template-columns:minmax(0,1fr)}
@@ -1416,7 +1425,7 @@ function imageBridge({ pid, sketch = null, sketchName = "eskiz" } = {}) {
     const b = e.target.closest("[data-b]"); if (!b) return;
     const k = b.dataset.b;
     if (k === "x") close();
-    if (k === "sk") { try { await DOWNLOADS.save({ filename: `${safeName(sketchName)}.png`, data: sketch }); } catch {} }
+    if (k === "sk") { try { await DOWNLOADS.save({ filename: `${safeName(sketchName)}.png`, data: await sketch }); } catch {} }
     if (k === "copy") {
       if (desc.value.trim().length < 10) { toast("Önce kendi tarifini yaz (bir cümle yeter)."); desc.focus(); return; }
       let ok = false; try { await navigator.clipboard.writeText(build()); ok = true; } catch {}
@@ -2850,8 +2859,8 @@ class Sketch {
         <div class="grp"><button class="btn sm toggle" data-k="pen-only" title="Açıkken parmak yalnızca kaydırır/yakınlaştırır, kalem çizer">Sadece kalem</button></div>
         <div class="grp"><button class="btn sm ghost zoom" data-k="fit" title="Sayfaya sığdır">100%</button></div>
         <div class="grp"><button class="btn sm ghost hide-sm" data-k="clear">Temizle</button>
-        ${SAMPLE ? `<button class="btn sm" data-k="critique" style="color:var(--accent)">${ICON.spark}<span class="hide-sm">Claude'a göster</span></button>` : ""}
-        ${ASSETS ? `<button class="btn sm" data-k="render" title="Eskizinden ChatGPT ile render">${ICON.img}<span class="hide-sm">YZ render</span></button>` : ""}
+        ${SAMPLE ? `<button class="btn sm" data-k="critique" style="color:var(--accent)" title="Eskizini Claude'a göster, sorularla kritik al">${ICON.spark}<span class="hide-sm">Claude'a göster</span><span class="show-sm">Kritik</span></button>` : ""}
+        ${ASSETS ? `<button class="btn sm" data-k="render" title="Eskizinden ChatGPT ile render">${ICON.img}<span>YZ render</span></button>` : ""}
         ${DOWNLOADS ? `<button class="btn sm icon" data-k="png" title="PNG olarak indir" aria-label="PNG olarak indir">${ICON.dl}</button>` : ""}</div>
       </div>
       <div class="skx-stage" id="skStage">
@@ -2920,10 +2929,13 @@ class Sketch {
     if (a === "critique") this.critique();
     if (a === "render") this.render2ai();
   }
-  async render2ai() {
-    const cv = document.createElement("canvas"); cv.width = W; cv.height = H; this.paintArt(cv.getContext("2d"), false);
-    const blob = await new Promise(r => cv.toBlob(r, "image/png"));
-    imageBridge({ pid: this.pid, sketch: blob, sketchName: this.title || "eskiz" });
+  render2ai() {
+    // open the dialog at once; the PNG is prepared in the background for "Eskizi kaydet"
+    const sketch = new Promise(res => setTimeout(() => {
+      const cv = document.createElement("canvas"); cv.width = W; cv.height = H; this.paintArt(cv.getContext("2d"), false);
+      cv.toBlob(res, "image/png");
+    }, 50));
+    imageBridge({ pid: this.pid, sketch, sketchName: this.title || "eskiz" });
   }
   key(e, down) {
     if (!document.getElementById("skx")) return;
@@ -3352,7 +3364,7 @@ Toplam en fazla 180 kelime.`;
         panel.appendChild(box);
       }
     } catch (e) {
-      if (e && e.code === "aborted") return;
+      if (e && e.code === "aborted") { panel.remove(); return; }
       out.innerHTML = `<span class="ai-note">${esc(aiErr(e, "Yanıt alınamadı. Tekrar dene."))}</span>`;
     }
   }
