@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Stüdyo Defteri</title>
 <meta name="description" content="Endüstriyel tasarım projeleri için eskiz, araştırma ve planlama defteri.">
-<meta name="theme-color" content="#ECEEEC" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#131617" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Stüdyo">
@@ -14,30 +14,34 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
 /* Layout: drafting-table app shell — project rail on the left, title-block cards, full-screen A4 sketch board. */
+/* Apple-style tokens: iOS grouped background, white cards, hairlines, system blue for actions,
+   the orange crosshair stays as the brand mark. */
 :root{
-  --bg:#ECEEEC; --surface:#F6F7F5; --raised:#FFFFFF; --ink:#1B1F21; --ink-2:#4F575B; --ink-3:#848C90;
-  --line:#D5D9D6; --line-2:#C3C8C5; --accent:#E0530C; --accent-ink:#FFFFFF; --accent-soft:#FBE5D8;
-  --blue:#2B63C6; --ok:#2F8A55; --warn:#B9740B; --danger:#C3372B; --board:#D9DCDA; --paper:#FFFFFF;
-  --shadow:0 1px 2px rgba(20,30,35,.06),0 6px 20px rgba(20,30,35,.06);
-  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
-  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --bg:#F2F2F7; --surface:#FFFFFF; --raised:#FFFFFF; --ink:#1D1D1F; --ink-2:#6E6E73; --ink-3:#8E8E93;
+  --line:#E5E5EA; --line-2:#D1D1D6; --accent:#007AFF; --accent-ink:#FFFFFF; --accent-soft:#E5F1FF;
+  --brand:#FF6A13; --fill:rgba(120,120,128,.12); --fill-2:rgba(120,120,128,.08); --glass:rgba(249,249,251,.78);
+  --blue:#007AFF; --ok:#248A3D; --warn:#C93400; --danger:#D70015; --board:#E5E5EA; --paper:#FFFFFF;
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.06);
+  --r-card:16px; --r-ctl:10px;
+  --f-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable Display","Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --f-mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --f-code:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#131617; --surface:#1A1E1F; --raised:#212627; --ink:#E7EAE8; --ink-2:#A8AFB1; --ink-3:#737B7E;
-  --line:#2C3234; --line-2:#3A4143; --accent:#F26A24; --accent-ink:#1A0E06; --accent-soft:#3A2214;
-  --blue:#6E9BEA; --ok:#5DBA83; --warn:#E0A445; --danger:#EC6A5E; --board:#0E1011; --paper:#FFFFFF;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}}
+  --bg:#000000; --surface:#1C1C1E; --raised:#2C2C2E; --ink:#F5F5F7; --ink-2:#AEAEB2; --ink-3:#8E8E93;
+  --line:#38383A; --line-2:#48484A; --accent:#0A84FF; --accent-ink:#FFFFFF; --accent-soft:#0B2A4D;
+  --brand:#FF7A2E; --fill:rgba(120,120,128,.24); --fill-2:rgba(120,120,128,.16); --glass:rgba(28,28,30,.78);
+  --blue:#0A84FF; --ok:#30D158; --warn:#FF9F0A; --danger:#FF453A; --board:#000000; --paper:#FFFFFF;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#131617; --surface:#1A1E1F; --raised:#212627; --ink:#E7EAE8; --ink-2:#A8AFB1; --ink-3:#737B7E;
-  --line:#2C3234; --line-2:#3A4143; --accent:#F26A24; --accent-ink:#1A0E06; --accent-soft:#3A2214;
-  --blue:#6E9BEA; --ok:#5DBA83; --warn:#E0A445; --danger:#EC6A5E; --board:#0E1011; --paper:#FFFFFF;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25); color-scheme:dark}
+  --bg:#000000; --surface:#1C1C1E; --raised:#2C2C2E; --ink:#F5F5F7; --ink-2:#AEAEB2; --ink-3:#8E8E93;
+  --line:#38383A; --line-2:#48484A; --accent:#0A84FF; --accent-ink:#FFFFFF; --accent-soft:#0B2A4D;
+  --brand:#FF7A2E; --fill:rgba(120,120,128,.24); --fill-2:rgba(120,120,128,.16); --glass:rgba(28,28,30,.78);
+  --blue:#0A84FF; --ok:#30D158; --warn:#FF9F0A; --danger:#FF453A; --board:#000000; --paper:#FFFFFF;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); color-scheme:dark}
 
 html,body{height:100%;margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
@@ -613,9 +617,13 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;text-wrap:balance;margin
 .set-card ol{margin:6px 0 0;padding-left:20px;font-size:14px;color:var(--ink-2)}
 /* AI image bridge, iterations, learning notebook */
 .ai-tag{position:absolute;top:8px;left:8px;background:var(--ink);color:var(--bg);font:600 11px/1 var(--f-mono);letter-spacing:.06em;padding:5px 7px;border-radius:6px;cursor:help}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.chip{border:1px solid var(--line-2);background:var(--raised);color:var(--ink);border-radius:999px;padding:7px 12px;font-size:13px;cursor:pointer}
-.chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.bridge .chips{margin:10px 0 0}
+.bridge .chip{color:var(--ink);cursor:pointer}
+.bridge .chip[aria-pressed=true]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.crit-learn{font-size:13px;color:var(--ink-2);background:var(--accent-soft);border-radius:8px;padding:6px 10px}
+.crit-learn b{color:var(--ink)}
+.lc .src{background:none;border:0;padding:0;font:inherit;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.bridge blockquote{margin:0 0 10px;padding:8px 12px;border-left:3px solid var(--line-2);color:var(--ink-2);font-size:13.5px;max-height:120px;overflow:auto;white-space:pre-wrap}
 .bridge input.f{width:100%;margin-top:8px;border:1px solid var(--line-2);border-radius:10px;background:var(--raised);padding:9px 12px;font-size:14px;color:var(--ink)}
 .bridge p.lead{margin:0 0 14px;color:var(--ink-2);font-size:14px}
 .ai-lesson{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--accent-soft);font-size:13px;line-height:1.45;color:var(--ink)}
@@ -641,6 +649,94 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;text-wrap:balance;margin
 .lweek-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .lweek-h h2{font-size:16px;margin:0}
 .lsum{margin-top:10px}
+/* ===== Apple-style layer (overrides the earlier drafting-table look) ===== */
+body{font-size:15px;letter-spacing:-.005em;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
+.eyebrow{font:600 12px/1.2 var(--f-body);letter-spacing:.02em;text-transform:uppercase;color:var(--ink-3)}
+.page-head h1{font-size:clamp(30px,4vw,38px);font-weight:700;letter-spacing:-.025em}
+.sec-head{border-bottom:0;padding-bottom:0;margin-bottom:10px}
+.sec-head h2{font-size:20px;font-weight:700}
+/* sidebar: translucent material, iPad-style selection */
+.side{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-right:1px solid var(--line)}
+.brand-mark{border-color:var(--ink)} .brand-mark::before,.brand-mark::after{background:var(--brand)}
+.brand-name{font:700 17px/1 var(--f-display);font-stretch:normal;letter-spacing:-.02em}
+.nav-btn{border-radius:10px;padding:8px 10px;color:var(--ink);font-weight:500}
+.nav-btn svg{color:var(--accent)}
+.nav-btn:hover{background:var(--fill-2)}
+.nav-btn[aria-current="true"]{background:var(--accent);color:#fff;box-shadow:none}
+.nav-btn[aria-current="true"] svg{color:#fff}
+.nav-btn[data-act="new-project"]{color:var(--accent)!important}
+.sync{font:12px/1.3 var(--f-body)}
+.topbar{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+/* buttons: filled blue primary, gray-fill secondary, plain ghost */
+.btn{height:36px;border-radius:var(--r-ctl);border:0;background:var(--fill);color:var(--ink);font-weight:500;padding:0 14px}
+.btn:hover{border-color:transparent;background:var(--fill);filter:brightness(.97)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--fill-2);color:var(--accent)}
+.btn.danger,.btn.ghost.danger{color:var(--danger)}
+.btn.sm{height:30px;border-radius:8px;font-size:13px}
+.btn:active{transform:scale(.98)}
+.btn{transition:transform .08s,filter .15s,background .15s}
+/* cards */
+.pcard,.excard{border:0;border-radius:var(--r-card);background:var(--surface);box-shadow:var(--shadow)}
+.pc-top{border-bottom:1px solid var(--line)}
+.pc-name{font:650 19px/1.2 var(--f-display);font-stretch:normal;letter-spacing:-.02em}
+.tblock>div{border-right:1px solid var(--line)}
+.tblock dt{font:500 11px/1 var(--f-body);text-transform:none;letter-spacing:0}
+.tblock dd{font:600 14px/1.1 var(--f-body)}
+.pcard.new{border:1.5px dashed var(--line-2);box-shadow:none;background:transparent}
+.pcard.new:hover{border-color:var(--accent);color:var(--accent)}
+.tasklist,.editor,.crit,.pcol,.prc,.pin,.lc,.iter,.set-card,.critform,.rail,.lpanel,.critique{border:0;border-radius:var(--r-card);box-shadow:var(--shadow);background:var(--surface)}
+.prc,.pin{border-radius:12px}
+.pcol{background:var(--fill-2);box-shadow:none}
+.pcol.cur{box-shadow:inset 0 0 0 2px var(--accent)}
+.crit{border-left:0;position:relative;padding-left:20px}
+.crit::before{content:"";position:absolute;left:8px;top:14px;bottom:14px;width:4px;border-radius:2px;background:var(--accent)}
+.critform{box-shadow:0 0 0 2px var(--accent),var(--shadow)}
+.task{border-bottom:1px solid var(--line)}
+.chk{border-radius:50%;border:1.5px solid var(--line-2);width:22px;height:22px}
+.chk:checked{background:var(--accent);border-color:var(--accent)}
+.chk:checked::after{border-color:#fff}
+.pill{font:500 12px/1 var(--f-body);background:var(--fill);border:0;color:var(--ink-2);height:22px}
+.pill.late,.pill.soon{border:0}
+.empty{border:0;background:var(--surface);box-shadow:var(--shadow);border-radius:var(--r-card)}
+.banner{border:0;background:var(--surface);box-shadow:var(--shadow);border-radius:14px;color:var(--ink-2)}
+.banner a{color:var(--accent)}
+/* tabs as an iOS segmented control */
+.tabs{border-bottom:0;background:var(--fill);border-radius:10px;padding:2px;gap:2px;display:inline-flex;max-width:100%}
+.tab{border-bottom:0;margin:0;padding:6px 14px;border-radius:8px;color:var(--ink);font-size:14px;font-weight:500}
+.tab[aria-selected="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04);font-weight:600}
+:root[data-theme="dark"] .tab[aria-selected="true"]{background:#636366}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{background:#636366}}
+.tab .n{font:500 12px/1 var(--f-body)}
+/* inputs */
+.inp,.brief,.learn-form input,.set-card input[type=text],.set-card input[type=password],.set-card select,.bridge textarea,.bridge input.f{border:0;background:var(--fill-2);border-radius:var(--r-ctl);box-shadow:inset 0 0 0 1px transparent}
+.inp:focus,.brief:focus,.learn-form input:focus,.bridge textarea:focus,.bridge input.f:focus{outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent);background:var(--surface)}
+.bridge-q{font:12.5px/1.45 var(--f-code)!important}
+/* sheets and toasts */
+.bridge-ov{background:rgba(0,0,0,.32);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+.bridge{border:0;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.25);background:var(--surface)}
+@media (max-width:699px){.bridge{border-radius:20px 20px 16px 16px}.bridge::before{content:"";display:block;width:36px;height:5px;border-radius:3px;background:var(--line-2);margin:-8px auto 10px}}
+.bridge-h h2{font:700 20px/1.2 var(--f-display)}
+.toast{background:var(--glass);color:var(--ink);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);border-radius:999px;padding:11px 18px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,.18)}
+.loading{font:14px var(--f-body)}
+.ai-tag{background:rgba(0,0,0,.6);color:#fff;font:600 11px/1 var(--f-body);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-radius:6px}
+.ai-lesson,.crit-learn,.crit-concept{background:var(--accent-soft);border-radius:12px}
+.ai-out h4{font:650 15px/1.3 var(--f-display)}
+.lc small,.sk-cap span,.tool span,.zoom,.mx thead .mx-corner,.skx-info{font-family:var(--f-body)}
+/* sketch editor chrome */
+.skx-bar{background:var(--glass);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px)}
+.skx-title{font:650 17px/1.2 var(--f-display);font-stretch:normal}
+.tool{border-radius:12px}
+.tool[aria-pressed="true"]{background:var(--accent);color:#fff}
+.sk-thumb{border:0;border-radius:12px;box-shadow:var(--shadow)}
+.sk-new{border-radius:12px}
+.sk-new:hover{border-color:var(--accent);color:var(--accent)}
+.mx thead th,.mx tfoot th,.mx tfoot td{background:var(--fill-2)}
+.mx tfoot th,.mx tfoot td{border-top:1px solid var(--line-2)}
+.doc blockquote{border-left-color:var(--accent)}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -1286,12 +1382,14 @@ const saveBrief = debounce((pid, v) => updateProject(pid, { brief: v }), 700);
 function mountTab() {
   const tab = S.route.tab, body = $("#tabbody");
   document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === tab));
+  const selTab = document.querySelector('.tab[aria-selected="true"]'), tabsEl = selTab?.parentElement;
+  if (selTab && tabsEl && tabsEl.scrollWidth > tabsEl.clientWidth) tabsEl.scrollLeft = selTab.offsetLeft - (tabsEl.clientWidth - selTab.offsetWidth) / 2;
   if (tab === "surec") body.innerHTML = `<div id="process"></div>`;
   if (tab === "matris") body.innerHTML = `<div id="matrix"></div>`;
   if (tab === "eskiz") body.innerHTML = `<div class="skgrid" id="skgrid"></div>`;
   if (tab === "arastirma") { body.innerHTML = researchShell(); S.openNote = null; }
   if (tab === "pano") body.innerHTML = boardShell();
-  if (tab === "kritik") { S.editCrit = null; body.innerHTML = `<div class="crit-top"><button class="btn primary" data-act="crit-new">${ICON.plus}Yeni kritik</button><span class="ai-note">Derste aldığın kritikleri tarihi, dersi ve ne gösterdiğinle birlikte kaydet.</span></div><div id="critNew" hidden></div><div class="critlist" id="critList"></div>`; }
+  if (tab === "kritik") { subscribeLearn(); S.editCrit = null; body.innerHTML = `<div class="crit-top"><button class="btn primary" data-act="crit-new">${ICON.plus}Yeni kritik</button><span class="ai-note">Derste aldığın kritikleri tarihi, dersi ve ne gösterdiğinle birlikte kaydet.</span></div><div id="critNew" hidden></div><div class="critlist" id="critList"></div>`; }
   if (tab === "plan") { body.innerHTML = planShell(); fillHeader(proj(), true); }
   refreshTab(); updateTabCounts();
 }
@@ -2246,7 +2344,8 @@ function critCardHTML(c, global) {
     ${c.shown ? `<div class="crit-shown"><span class="eyebrow">Gösterdiğim</span><span>${esc(c.shown)}</span></div>` : ""}
     ${c.text ? `<p class="crit-text">${esc(c.text)}</p>` : ""}
     ${acts.length ? `<ul class="crit-acts">${acts.map(a => `<li class="${a.done ? "done" : ""}"><label><input type="checkbox" class="chk" data-act="crit-act" data-pid="${c.pid || S.route.pid}" data-id="${c.id}" data-aid="${a.id}" ${a.done ? "checked" : ""}><span>${esc(a.t)}</span></label></li>`).join("")}</ul>` : ""}
-    ${global ? "" : `<footer class="crit-f">${acts.some(a => !a.done) ? `<button class="btn sm" data-act="crit-to-tasks" data-id="${c.id}">Görevlere aktar</button>` : ""}<button class="btn sm ghost" data-act="crit-edit" data-id="${c.id}">Düzenle</button><button class="btn sm ghost danger" data-act="del-item" data-id="${c.id}">${ICON.trash}Sil</button></footer>`}
+    ${(() => { const ks = LEARN.cards.filter(k => k.src && k.src.iid === c.id); return ks.length ? `<div class="crit-learn">Öğrendiğim: ${ks.map(k => `<b>${esc(k.t)}</b>`).join(", ")}</div>` : ""; })()}
+    <footer class="crit-f"><button class="btn sm ghost" data-act="crit-learn" data-id="${c.id}" data-pid="${c.pid || S.route.pid}">${ICON.plus}Öğrendiklerime ekle</button>${global ? "" : `${acts.some(a => !a.done) ? `<button class="btn sm" data-act="crit-to-tasks" data-id="${c.id}">Görevlere aktar</button>` : ""}<button class="btn sm ghost" data-act="crit-edit" data-id="${c.id}">Düzenle</button><button class="btn sm ghost danger" data-act="del-item" data-id="${c.id}">${ICON.trash}Sil</button>`}</footer>
   </article>`;
 }
 const sortCrits = a => a.slice().sort((x, y) => (y.date || "").localeCompare(x.date || "") || (y.createdAt || 0) - (x.createdAt || 0));
@@ -2278,6 +2377,39 @@ async function toggleCritAct(el) {
   el.closest("li")?.classList.toggle("done", el.checked);
   try { await itemDoc(pid, id).update({ actions: c.actions, updatedAt: now() }); } catch { toast("Kaydedilemedi."); }
 }
+/* Critique -> learning notebook: the student writes the concept in their own words. */
+async function critToLearn(el) {
+  const id = el.dataset.id, pid = el.dataset.pid;
+  const c = S.items.find(x => x.id === id) || (S.allCrits || []).find(x => x.id === id); if (!c) return;
+  const r = await askConcept({ quote: c.text || c.shown || "" });
+  if (!r) return;
+  if (await addLearn(r.t, r.d, { pid, iid: id, from: "Kritik · " + (c.stage || "Kritik") })) { if (S.route.view === "crits") renderCritsPage(); else renderCrits(); }
+}
+function askConcept({ quote = "" } = {}) {
+  return new Promise(resolve => {
+    const ov = document.createElement("div"); ov.className = "bridge-ov";
+    ov.innerHTML = `<div class="bridge" role="dialog" aria-modal="true" aria-labelledby="acT">
+      <div class="bridge-h"><h2 id="acT">Bu kritikten ne öğrendin?</h2><button class="btn icon ghost" data-b="x" aria-label="Kapat">${ICON.x}</button></div>
+      ${quote ? `<blockquote>${esc(quote)}</blockquote>` : ""}
+      <p class="lead">Hocanın sözünü kopyalama; arkasındaki fikri kendi cümlenle yaz. Böyle yazınca akılda kalır.</p>
+      <input class="f" id="acT1" maxlength="60" placeholder="Kavram (örn. oran, görsel ağırlık)">
+      <input class="f" id="acD1" maxlength="240" placeholder="Ne demek? Kendi cümlenle">
+      <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn primary" data-b="ok">Ekle</button></div>
+    </div>`;
+    document.body.appendChild(ov);
+    const t = $("#acT1", ov), d = $("#acD1", ov); setTimeout(() => t.focus(), 30);
+    const done = v => { ov.remove(); document.removeEventListener("keydown", onKey); resolve(v); };
+    const onKey = e => { if (e.key === "Escape") done(null); if (e.key === "Enter" && e.target.matches("#acT1,#acD1")) { e.preventDefault(); ok(); } };
+    const ok = () => { if (!t.value.trim()) { toast("Kavramın adını yaz."); t.focus(); return; } done({ t: t.value.trim(), d: d.value.trim() }); };
+    document.addEventListener("keydown", onKey);
+    ov.addEventListener("click", e => {
+      if (e.target === ov) return done(null);
+      const b = e.target.closest("[data-b]"); if (!b) return;
+      if (b.dataset.b === "x") done(null);
+      if (b.dataset.b === "ok") ok();
+    });
+  });
+}
 function critToTasks(id) {
   const p = proj(); const c = S.items.find(x => x.id === id); if (!p || !c) return;
   const have = new Set((p.tasks || []).map(t => t.t));
@@ -2298,6 +2430,7 @@ async function loadAllCrits() {
   return out;
 }
 function mountCritsPage() {
+  subscribeLearn();
   $("#view").innerHTML = `<div id="critsPage"><div class="page-head"><div><div class="eyebrow">Tüm dersler</div><h1>Kritikler</h1></div>${SAMPLE ? `<button class="btn" data-act="crits-ai">${ICON.spark}Tekrar eden kritikleri bul</button>` : ""}</div>
     <div class="ai" id="critsAi" hidden style="border:1px solid var(--line);border-radius:12px;margin-bottom:20px"><div class="ai-out" id="critsAiOut"></div></div>
     <div class="chips" id="critChips"></div><div id="critsBody"><div class="loading">Kritikler yükleniyor…</div></div></div>`;
@@ -2605,6 +2738,8 @@ const ACT = {
   "crit-edit": el => { S.editCrit = el.dataset.id; const w = $("#critNew"); if (w) { w.hidden = true; w.innerHTML = ""; } document.activeElement?.blur?.(); renderCrits(); },
   "crit-act": el => toggleCritAct(el),
   "crit-to-tasks": el => critToTasks(el.dataset.id),
+  "crit-learn": el => critToLearn(el),
+  "learn-src": el => { const pid = el.dataset.pid; if (S.projects.some(p => p.id === pid)) go({ view: "project", pid, tab: el.dataset.tab }); else toast("Bu proje silinmiş."); },
   "crit-filter": el => { S.critFilter = el.dataset.c || null; renderCritsPage(); },
   "open-crit-proj": el => go({ view: "project", pid: el.dataset.pid, tab: "kritik" }),
   "crits-ai": () => critsAI(),
@@ -3388,6 +3523,8 @@ function subscribeLearn() {
   LEARN.unsub = learnCol().onSnapshot(snap => {
     LEARN.cards = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
     LEARN.loaded = true; if (S.route.view === "learn") renderLearnBody();
+    if (S.route.view === "crits" && S.allCrits) renderCritsPage();
+    if (S.route.view === "project" && S.route.tab === "kritik") renderCrits();
   }, () => { LEARN.loaded = true; });
 }
 async function addLearn(t, d, src = null) {
@@ -3426,7 +3563,8 @@ function renderLearnBody() {
     ${w === thisWeek ? `<div class="ai-out lsum" id="learnSum" hidden></div>` : ""}
     <ul class="lcards">${list.map(c => {
       const pr = c.src && c.src.pid ? S.projects.find(x => x.id === c.src.pid) : null;
-      return `<li class="lc"><div><b>${esc(c.t)}</b>${c.d ? `<p>${esc(c.d)}</p>` : ""}<small>${fmtDate(c.createdAt || now())}${c.src?.from ? " · " + esc(c.src.from) : ""}${pr ? " · " + esc(pr.name || "") : ""}</small></div><button class="btn sm icon ghost" data-act="learn-del" data-id="${c.id}" aria-label="Sil">${ICON.trash}</button></li>`;
+      const tab = c.src?.from && c.src.from.startsWith("Kritik") ? "kritik" : "eskiz";
+      return `<li class="lc"><div><b>${esc(c.t)}</b>${c.d ? `<p>${esc(c.d)}</p>` : ""}<small>${fmtDate(c.createdAt || now())}${c.src?.from ? " · " + esc(c.src.from) : ""}${pr ? ` · <button class="src" data-act="learn-src" data-pid="${pr.id}" data-tab="${tab}" title="Kaynağa git">${esc(pr.name || "Proje")}</button>` : ""}</small></div><button class="btn sm icon ghost" data-act="learn-del" data-id="${c.id}" aria-label="Sil">${ICON.trash}</button></li>`;
     }).join("")}</ul></section>`).join("");
 }
 async function learnSummary() {
