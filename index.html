@@ -767,15 +767,24 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .tc-sk small{font-size:12.5px;color:var(--ink-3)}
 /* claude work sheet + decisions */
 .cw-ctx{min-height:160px}
-.cw-card .card-h h2{display:flex;align-items:center;gap:6px}
-.cw-focus{margin:0 0 10px;font-size:13.5px;color:var(--ink-2);line-height:1.45}
-.cw-card #cwGoal{width:100%;margin-bottom:10px}
-.cw-steps{display:flex;gap:8px;flex-wrap:wrap}
-.cw-steps .btn{flex:1 1 200px;justify-content:center}
-.cw-steps .btn.done{color:var(--ink-2)}
-.cw-how{margin:10px 0 0}
-.cw-back{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.cw-card{background:linear-gradient(135deg,var(--accent-soft),var(--surface) 70%)}
+.cw-top{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.cw-ic{flex:none;width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;display:grid;place-items:center}
+.cw-ic svg{width:20px;height:20px}
+.cw-top h2{margin:0 0 2px;font-size:17px}
+.cw-top p{margin:0;font-size:14px;color:var(--ink-2);line-height:1.45}
+.cw-card #cwGoal{width:100%;margin-bottom:8px;background:var(--surface)}
+.cw-go{width:100%;justify-content:center}
+.cw-how{margin:8px 0 0}
+.cw-more{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:13px}
 .bridge.cw>p.muted{margin:0 0 10px}
+.bridge.cw .f{display:block;font-size:13px;font-weight:600;margin:10px 0 4px}
+.bridge.cw #scH{width:100%}
+.bridge.cw #scQ{min-height:72px}
+.bridge.cw .row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.sc-go{margin-top:12px}
+.sc-go .btn{flex:1;justify-content:center}
+.sc-back{margin-top:10px;padding-top:6px;border-top:1px solid var(--line)}
 .cw-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
 .cw-list label{display:flex;gap:8px;align-items:flex-start;background:var(--fill);border-radius:10px;padding:8px 10px;cursor:pointer}
 .cw-list .t{flex:1;min-width:0;font-size:14px}
@@ -1845,6 +1854,7 @@ function openNote(id) {
       ${tb("bold", "<b>K</b>", "Kalın")}${tb("italic", "<i>İ</i>", "İtalik")}<span class="tsep"></span>
       ${tb("insertUnorderedList", "•", "Madde listesi")}${tb("insertOrderedList", "1.", "Numaralı liste")}${tb("formatBlock", "❝", "Alıntı", "BLOCKQUOTE")}<span class="tsep"></span>
       <button class="tb" data-act="note-img" title="Görsel ekle" aria-label="Görsel ekle">${ICON.img}</button>
+      <button class="tb claude" data-act="src-scan" title="Claude ya da ChatGPT ile web'de makale ve kaynak tara">${ICON_SEARCH}Kaynak tara</button>
       ${SAMPLE ? `<button class="tb claude" data-act="ai-toggle">${ICON.spark}Claude</button>` : ""}
     </div>
     <div class="doc" id="doc" contenteditable="true" data-ph="Yazmaya başla…" spellcheck="true"></div>
@@ -2078,7 +2088,14 @@ const STAGE_FOCUS = {
   maket: ["Maket", "1:1 look-like maket stratejisi: hangi parça 3B baskı, hangisi başka yöntem; yüzey hazırlığı ve boya; maket fotoğrafı çekim listesi; etkileşim videosu planı."],
   final: ["Final teslim", "Resmî teslim listesine göre eksikleri kontrol etme; pafta akışı ve İngilizce pafta metinleri; teknik çizimler; maket fotoğrafları; video. Yeni konsept açma."],
 };
-function handoffMessage(p, goal) {
+/* The card appears only from Geliştirme on: before that the in-app tools (plan, research ideas,
+   sketch critique, matrix) cover the work; modelling, maket and final need an open conversation. */
+const CW_STAGES = {
+  gelistirme: "Modelleme zamanı. Claude 3B modelini, ölçülerini ve üretilebilirliği kontrol etmene yardım eder.",
+  maket: "Maket zamanı. Claude 1:1 maketin yapım planını, fotoğraf ve video çekimini hazırlamana yardım eder.",
+  final: "Teslim zamanı. Claude eksiklerini, pafta metinlerini ve teknik çizimlerini kontrol etmene yardım eder.",
+};
+function handoffMessage(p) {
   const [nm, focus] = STAGE_FOCUS[curStage(p)] || STAGE_FOCUS.arastirma;
   return `${WORK_PROMPT}
 
@@ -2088,7 +2105,7 @@ ${projectContext(p)}
 
 BU OTURUMUN ODAĞI (${nm} aşaması): ${focus}
 ${S.cwPack === p.id ? `\nEKTE: "${safeName(p.name || "Proje")}_Claude_paketi.zip" — brief, süreç, kritikler ve araştırma PDF'leri, eskiz PNG'leri ve pano görselleri. Önce içeriğini kısaca listele ve açamadığın dosya varsa söyle.\n` : ""}
-BUGÜN YAPMAK İSTEDİĞİM: ${(goal || "").trim() || "(yazmadım; özete ve aşamaya bakıp önce neyle başlamamız gerektiğini öner ve bana sor)"}`;
+BUGÜN YAPMAK İSTEDİĞİM: ${(S.cwGoal || "").trim() || "(yazmadım; özete ve aşamaya bakıp önce neyle başlamamız gerektiğini öner ve bana sor)"}`;
 }
 async function claudePack() {
   const p = proj(); if (!p || PROG.busy) return;
@@ -2098,38 +2115,40 @@ async function claudePack() {
     await loadScript(CDN.zip);
     const zip = new window.JSZip();
     S.cwPack = p.id;
-    zip.file("00_CLAUDE_OKU.md", handoffMessage(p, S.cwGoal));
+    zip.file("00_CLAUDE_OKU.md", handoffMessage(p));
     if ((p.brief || "").trim()) zip.file("01_BRIEF.txt", p.brief);
     await addProjectToZip(zip, p, new Set(["00_CLAUDE_OKU.md", "01_BRIEF.txt"]));
     prog("Paketleniyor…");
     const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } });
     prog(); await saveFile(safeName(p.name || "Proje") + "_Claude_paketi.zip", blob);
-    renderClaudeCard();
+    renderClaudeCard(); toast("Paket indirildi. Şimdi \"Claude'a geç\"e bas; Claude'da zip'i de mesaja ekle.");
   } catch (e) { prog(); S.cwPack = null; toast("Paket hazırlanamadı: " + (e.message || "bilinmeyen hata")); }
   finally { PROG.busy = false; }
 }
 async function claudeGo() {
   const p = proj(); if (!p) return;
-  const msg = handoffMessage(p, S.cwGoal);
+  const msg = handoffMessage(p);
   let ok = false; try { await navigator.clipboard.writeText(msg); ok = true; } catch {}
   if (!ok) { replySheet(msg); return; }
   window.open("https://claude.ai/new", "_blank", "noopener");
-  toast(S.cwPack === p.id ? "Mesaj kopyalandı. Claude'da yapıştır, zip'i ekle, gönder." : "Mesaj kopyalandı. Claude'da yapıştır ve gönder.");
+  toast(S.cwPack === p.id ? "Kopyalandı. Claude'da yapıştır, zip'i ekle ve gönder." : "Kopyalandı. Claude'da yapıştır ve gönder.");
+  if (!p.cwAt || now() - p.cwAt > 36e5) updateProject(p.id, { cwAt: now() }).then(() => renderClaudeCard());
 }
 function renderClaudeCard() {
   const box = $("#cwCard"), p = proj(); if (!box || !p) return;
+  const line = CW_STAGES[curStage(p)];
+  if (!line) { box.innerHTML = ""; return; }
   if (box.contains(document.activeElement)) return;
-  const [nm, focus] = STAGE_FOCUS[curStage(p)] || STAGE_FOCUS.arastirma, packed = S.cwPack === p.id;
+  const packed = S.cwPack === p.id, went = p.cwAt && now() - p.cwAt < 30 * 864e5;
   box.innerHTML = `<section class="card cw-card">
-    <div class="card-h"><h2>Claude'da devam et</h2><span class="eyebrow">${esc(nm)}</span></div>
-    <p class="cw-focus">${esc(focus)}</p>
-    <input class="inp" id="cwGoal" value="${esc(S.cwGoal || "")}" oninput="S.cwGoal=this.value" placeholder="Bugün ne yapmak istiyorsun? (isteğe bağlı)" maxlength="300" autocomplete="off">
-    <div class="cw-steps">
-      <button class="btn${packed ? " done" : ""}" data-act="cw-pack">${packed ? "✓ Paket indirildi" : `${ICON.dl}<span>1 · Proje paketini indir</span>`}</button>
-      <button class="btn primary" data-act="cw-go">${ICON.spark}<span>${packed ? "2 · " : ""}Mesajı kopyala, Claude'u aç</span></button>
+    <div class="cw-top"><span class="cw-ic">${ICON.spark}</span><div><h2>Claude'da devam et</h2><p>${esc(line)}</p></div></div>
+    <input class="inp" id="cwGoal" value="${esc(S.cwGoal || "")}" oninput="S.cwGoal=this.value" placeholder="Bugün ne yapmak istiyorsun? ör. zarfın kesitini netleştirmek" maxlength="300" autocomplete="off">
+    <button class="btn primary cw-go" data-act="cw-go">Claude'a geç</button>
+    <p class="ai-note cw-how">Projenin özeti ve yazdığın iş tek mesaj olarak kopyalanır ve Claude açılır. Orada yapıştırıp göndermen yeter.</p>
+    <div class="cw-more">
+      <button class="linkbtn" data-act="cw-pack">${packed ? "✓ Eskiz ve belgeler indirildi (zip)" : "Eskiz ve belgelerini de göstermek için zip indir"}</button>
+      ${went ? `<button class="linkbtn" data-act="cw-reply">Claude'un önerdiklerini deftere al</button>` : ""}
     </div>
-    <p class="ai-note cw-how">Mesajda çalışma talimatı, projenin özeti ve bu aşamanın odağı var. Claude'da mesajı yapıştır${packed ? ", zip'i sürükle" : ""} ve gönder. Paket isteğe bağlı: eskizlerini ve belgelerini de görmesini istersen indir. Zip yüklenmezse içindeki PDF ve PNG'leri tek tek ekle.</p>
-    <div class="cw-back"><button class="linkbtn" data-act="cw-reply">Claude'un cevabını deftere al →</button></div>
   </section>`;
 }
 function replySheet(fallbackMsg) {
@@ -2276,6 +2295,115 @@ function armed(el, label) {
 }
 
 /* ---------- AI (Claude) ---------- */
+/* ---------- source scan: a literature/data search run in Claude or ChatGPT with web search,
+   pasted back into the research document with its source list ---------- */
+const ICON_SEARCH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
+function scanQuestion() {
+  const sel = String(window.getSelection() || "").trim(), doc = $("#doc");
+  if (sel && doc && doc.contains(window.getSelection().anchorNode)) return sel.slice(0, 600);
+  if (doc) { const qs = [...doc.querySelectorAll("ol li, ul li")].map(li => li.innerText.trim()).filter(t => t && t !== "…" && /\?$/.test(t)); if (qs.length) return qs.slice(0, 3).join("\n"); }
+  return "";
+}
+function scanPrompt(q, h) {
+  const p = proj() || {}, n = S.items.find(x => x.id === S.openNote) || {};
+  return `Bir endüstriyel tasarım öğrencisi için kaynak taraması yap. Web'de ara; bilgiyi hafızandan tahmin etme.
+
+PROJE: ${p.name || "-"}${p.course ? " (" + p.course + ")" : ""} · Aşama: ${stageName(curStage(p)) || "-"}
+PROJE BAĞLAMI: ${(p.brief || "(brief yok)").replace(/\s+/g, " ").slice(0, 700)}
+BELGE: ${n.title || "-"}
+
+ARAŞTIRMA SORUSU:
+${q}
+${h ? `\nÖĞRENCİNİN ŞU ANKİ BİLGİSİ / TAHMİNİ: ${h}\nBulguları bununla karşılaştır: hangisi doğrulandı, hangisi çürütüldü, hangisi belirsiz.\n` : ""}
+NEREDE ARA (konuya uyanları seç): hakemli makaleler (Google Scholar, ScienceDirect, SpringerLink, Taylor & Francis; ör. Design Studies, Applied Ergonomics, International Journal of Design; Türkçe kaynak için DergiPark ve YÖK Tez Merkezi), standartlar (ISO, EN, TSE), antropometri ve ergonomi verileri, malzeme veri sayfaları ve üretici katalogları, patentler (Google Patents), resmî marka/üretici sayfaları, güvenilir sektör raporları.
+
+KURALLAR
+- Her somut bilginin (ölçü, oran, sıcaklık, malzeme değeri, istatistik, tarih) yanında kaynak numarası olsun: [1], [2]…
+- Kaynağını bulamadığın bilgiyi yazma ya da "doğrulanamadı" diye işaretle. Kaynak, yazar, DOI ya da URL uydurma; yalnızca gerçekten açtığın sayfaları listele.
+- Bir makalenin yalnızca özetini okuyabildiysen bunu belirt.
+- Güncel kaynakları tercih et; eski ama temel kaynakları "temel kaynak" diye işaretle.
+- Türkçe yaz; makale ve standart adlarını orijinal dilinde bırak.
+- Tasarım kararını öğrencinin yerine verme; bulguların sonuçlarını seçenek olarak yaz.
+
+BİÇİM (Markdown, başka bölüm ekleme):
+## Kısa cevap
+2–4 cümle.
+## Bulgular
+- bilgi [n]
+## Tasarımıma etkisi
+- bu bulgunun ürün için anlamı, seçenek olarak
+## Kaynaklar
+1. Yazar (yıl). Başlık. Yayın/site. URL — tür: makale / standart / katalog / patent / web — güven: yüksek / orta / düşük
+## Açık kalanlar
+- cevaplanamayan ya da kaynakların çeliştiği noktalar
+- öğrencinin kendisinin açıp okuması gereken en önemli 2 kaynak`;
+}
+function mdToDoc(s) {
+  const link = t => t.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2">$1</a>').replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2">$2</a>');
+  const inline = t => link(t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/(^|\s)\*([^*]+)\*/g, "$1<i>$2</i>"));
+  let out = "", list = null;
+  const close = () => { if (list) { out += `</${list}>`; list = null; } };
+  esc(s).split(/\r?\n/).forEach(l => {
+    const ol = l.match(/^\s*\d+[.)]\s+(.*)/), ul = l.match(/^\s*[-*•]\s+(.*)/), hd = l.match(/^\s*#{1,6}\s+(.*)/);
+    if (ol || ul) { const k = ol ? "ol" : "ul"; if (list !== k) { close(); out += `<${k}>`; list = k; } out += `<li>${inline((ol || ul)[1])}</li>`; return; }
+    close();
+    if (hd) out += `<h3>${inline(hd[1])}</h3>`; else if (l.trim()) out += `<p>${inline(l)}</p>`;
+  });
+  close();
+  return out;
+}
+function scanSheet() {
+  const doc = $("#doc"); if (!doc || !S.openNote) return;
+  const ov = document.createElement("div"); ov.className = "bridge-ov";
+  ov.innerHTML = `<div class="bridge cw" role="dialog" aria-modal="true" aria-labelledby="scT">
+    <div class="bridge-h"><h2 id="scT">Kaynak tara</h2><button class="btn icon ghost" data-s="x" aria-label="Kapat">${ICON.x}</button></div>
+    <p class="muted">Claude ya da ChatGPT web'de makale, standart ve veri arar; her bilgiyi kaynağıyla getirir. Cevabı bu belgeye eklersin.</p>
+    <label class="f" for="scQ">Ne öğrenmek istiyorsun?</label>
+    <textarea class="bridge-a" id="scQ" rows="3" placeholder="ör. Kulpsuz fincanda elin dayanabileceği en yüksek yüzey sıcaklığı kaç derece?"></textarea>
+    <label class="f" for="scH">Şu an ne biliyorsun ya da tahminin ne? <span class="muted">(isteğe bağlı, önce sen)</span></label>
+    <input class="inp" id="scH" placeholder="ör. 45–50 °C civarı olmalı diye düşünüyorum" autocomplete="off">
+    <div class="row sc-go"><button class="btn primary" data-s="claude">${ICON.spark}Claude'da ara</button><button class="btn" data-s="gpt">ChatGPT'de ara</button></div>
+    <p class="ai-note">Açılan sohbette web aramasını aç (Claude'da Araştırma ya da web araması, ChatGPT'de derin araştırma). Soru kopyalanmış olur, yapıştırıp gönder.</p>
+    <div class="sc-back" hidden>
+      <label class="f" for="scA">Cevabı buraya yapıştır</label>
+      <textarea class="bridge-a" id="scA" placeholder="Cevabın tamamını, kaynak listesiyle birlikte yapıştır"></textarea>
+      <div class="row"><button class="btn" data-s="paste">Panodan yapıştır</button><span style="flex:1"></span><button class="btn primary" data-s="add">Belgeye ekle</button></div>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const q = $("#scQ", ov), h = $("#scH", ov), a = $("#scA", ov), back = $(".sc-back", ov);
+  q.value = scanQuestion(); let via = "";
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  ov.addEventListener("click", async e => {
+    if (e.target === ov) return close();
+    const b = e.target.closest("[data-s]"); if (!b) return;
+    const k = b.dataset.s;
+    if (k === "x") close();
+    if (k === "claude" || k === "gpt") {
+      if (q.value.trim().length < 8) { toast("Önce ne öğrenmek istediğini yaz."); q.focus(); return; }
+      const msg = scanPrompt(q.value.trim(), h.value.trim());
+      let ok = false; try { await navigator.clipboard.writeText(msg); ok = true; } catch {}
+      if (!ok) { toast("Otomatik kopyalanamadı."); return; }
+      via = k === "claude" ? "Claude" : "ChatGPT";
+      window.open(k === "claude" ? "https://claude.ai/new" : "https://chatgpt.com/", "_blank", "noopener");
+      toast(`Soru kopyalandı. ${via}'da web aramasını açıp yapıştır.`);
+      back.hidden = false;
+    }
+    if (k === "paste") { try { a.value = await navigator.clipboard.readText(); } catch { toast("Pano okunamadı; uzun basıp Yapıştır'ı seç."); a.focus(); } }
+    if (k === "add") {
+      const txt = a.value.trim(); if (!txt) { toast("Önce cevabı yapıştır."); a.focus(); return; }
+      const d = $("#doc"); if (!d) { close(); return; }
+      const block = `<hr><h2>Kaynak taraması · ${esc(fmtDate(now()))}${via ? " · " + via : ""}</h2><blockquote><b>Soru:</b> ${esc(q.value.trim())}${h.value.trim() ? `<br><b>Tahminim:</b> ${esc(h.value.trim())}` : ""}</blockquote>${mdToDoc(txt)}<p><b>Kontrol:</b> ☐ En önemli iki kaynağı kendim açıp okudum ☐ Bulguların tasarımıma etkisini kendi cümlelerimle yazdım</p>`;
+      d.insertAdjacentHTML("beforeend", sanitize(block));
+      NOTE.dirty = true; saveNote(); updateWords();
+      close(); toast("Kaynak taraması belgeye eklendi");
+      d.lastElementChild?.scrollIntoView({ block: "end", behavior: "smooth" });
+    }
+  });
+  setTimeout(() => (q.value ? h : q).focus(), 50);
+}
 function mdLite(s) {
   const lines = esc(s).split(/\r?\n/); let out = "", inList = false;
   const inline = t => t.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
@@ -2348,8 +2476,9 @@ function planEnd(p, k) { const s = ((p.plan || {}).stages || []).find(x => x.k =
 async function setProjectStage(k) {
   const p = proj(); if (!p || !stageName(k)) return;
   const dates = { ...(p.stageDates || {}) }; if (!dates[k]) dates[k] = todayISO();
+  const wasCw = !!CW_STAGES[curStage(p)];
   await updateProject(p.id, { stage: k, stageDates: dates }); renderProcess(); renderClaudeCard();
-  toast(`Proje “${stageName(k)}” aşamasında`);
+  toast(CW_STAGES[k] && !wasCw ? `Proje “${stageName(k)}” aşamasında. Plan'ın en üstünde “Claude'da devam et” belirdi.` : `Proje “${stageName(k)}” aşamasında`);
 }
 async function setItemStage(id, k) {
   const p = proj(); const it = S.items.find(x => x.id === id); if (!p || !it || it.phase === k || !stageName(k)) return;
@@ -2387,13 +2516,12 @@ function togglePinfo(force) {
   const open = force ?? box.hidden; box.hidden = !open; b?.setAttribute("aria-expanded", open);
 }
 function planShell() {
-  return `<section class="card brief-card">
+  return `<div id="cwCard"></div><section class="card brief-card">
       <div class="card-h"><h2>Brief</h2><button class="btn sm ghost" data-act="brief-file" title="PDF, fotoğraf ya da metin dosyası">${ICON.dl.replace('M12 4v11M7 10l5 5 5-5', 'M12 15V4M7 9l5-5 5 5')}Dosyadan yükle</button><input type="file" id="briefFile" accept="application/pdf,.pdf,image/*,.txt,.md" hidden></div>
       <textarea class="brief" id="pbrief" rows="5" placeholder="Hocanın verdiği brief'i buraya yapıştır ya da PDF / fotoğrafını yükle. Kullanıcı kim, problem ne, kısıtlar, teslim formatı…"></textarea>
       <div class="brief-foot" id="briefFoot"></div>
     </section>
     <div id="planBody"></div>
-    <div id="cwCard"></div>
     <div id="decisions"></div>
     <section class="sec"><div class="sec-head"><h2>Görevler</h2><button class="btn sm ghost" data-act="cal-open" title="Jürileri ve görevleri iPhone takvimine aktar">${ICON_CAL}Takvime ekle</button></div>
       <div id="calPanel" hidden></div>
@@ -3212,6 +3340,7 @@ const ACT = {
   "sk-iter": el => newIteration(el.dataset.id),
   "paper-sketch": () => $("#paperPick")?.click(),
   "ideas-make": () => makeIdeas(),
+  "src-scan": () => scanSheet(),
   "cw-pack": () => claudePack(),
   "cw-go": () => claudeGo(),
   "cw-reply": () => replySheet(),
