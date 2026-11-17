@@ -765,6 +765,24 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .tc-sk span{display:flex;flex-direction:column;gap:2px;min-width:0}
 .tc-sk b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tc-sk small{font-size:12.5px;color:var(--ink-3)}
+/* claude work sheet + decisions */
+.cw-ctx{min-height:160px}
+.cw-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.cw-list label{display:flex;gap:8px;align-items:flex-start;background:var(--fill);border-radius:10px;padding:8px 10px;cursor:pointer}
+.cw-list .t{flex:1;min-width:0;font-size:14px}
+.cw-list small{display:block;color:var(--ink-2);font-size:12px;margin-top:1px}
+.cw-k{flex:none;font-size:11px;font-weight:600;padding:2px 7px;border-radius:99px;margin-top:1px}
+.cw-k.k-g{background:var(--accent-soft);color:var(--accent)}
+.cw-k.k-k{background:var(--fill-2);color:var(--ink)}
+.cw-k.k-c{background:#E7F6EC;color:#1E7A3C}
+:root[data-theme="dark"] .cw-k.k-c{background:#17321F;color:#7FD49A}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .cw-k.k-c{background:#17321F;color:#7FD49A}}
+.dec-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.dec-list li{display:flex;gap:8px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.dec-list li>div{flex:1;min-width:0}
+.dec-list b{font-weight:600;font-size:14px}
+.dec-list p{margin:2px 0 0;font-size:13px;color:var(--ink-2)}
+.dec-list small{font-size:11.5px;color:var(--ink-3)}
 /* research ideas */
 .idea{display:flex;flex-direction:column;gap:2px;text-align:left;border:0;border-radius:10px;background:var(--accent-soft);padding:9px 11px;min-width:0;color:var(--ink)}
 .idea:hover{filter:brightness(.97)}
@@ -1425,7 +1443,7 @@ function projectShell(p) {
   return `${previewBanner()}<div class="proj-head">
     <div class="ph-main"><input class="ptitle" id="ptitle" aria-label="Proje adı" maxlength="80">
       <button class="pmeta-line" id="pmetaLine" data-act="toggle-pinfo" aria-expanded="false" aria-controls="pinfo"></button></div>
-    <div class="ph-acts"><button class="btn sm ghost" data-act="export-project" title="Her şeyi klasörlere ayrılmış .zip olarak indir">${ICON.dl}<span>İndir</span></button><button class="btn sm ghost danger" data-act="delete-project" id="delProj" title="Projeyi sil" aria-label="Projeyi sil">${ICON.trash}</button></div>
+    <div class="ph-acts"><button class="btn sm" data-act="claude-work" title="Claude'a proje özetini ver, cevabını deftere al">${ICON.spark}<span>Claude</span></button><button class="btn sm ghost" data-act="export-project" title="Her şeyi klasörlere ayrılmış .zip olarak indir">${ICON.dl}<span>İndir</span></button><button class="btn sm ghost danger" data-act="delete-project" id="delProj" title="Projeyi sil" aria-label="Projeyi sil">${ICON.trash}</button></div>
     <div class="pmeta" id="pinfo" hidden>
       <div class="field"><label for="pcourse">Ders</label><input class="inp" id="pcourse" list="courseList" placeholder="ör. ID 302 Stüdyo" maxlength="60" style="width:190px"></div>
       <div class="field"><label for="pdue">Teslim</label><input type="date" class="inp" id="pdue"></div>
@@ -1932,6 +1950,193 @@ function renderTasks() {
     + (done.length ? `<li class="t-grp t-done"><button class="linkbtn" data-act="toggle-done">${S.showDone ? "Tamamlananları gizle" : "Tamamlananları göster"}</button><span>${done.length}</span></li>${S.showDone ? done.map(row).join("") : ""}` : "");
 }
 
+/* ---------- working with Claude in a claude.ai Project ----------
+   One standing instruction (pasted once into the Project), a fresh notebook summary per session,
+   and the "DEFTERE EKLE" block of Claude's reply read back as tasks, decisions and concepts. */
+const WORK_PROMPT = `# STÜDYO ÇALIŞMA TALİMATI — Endüstriyel Tasarım
+
+Bu metin her projede aynı kalır. Projeye özel bilgiler her oturumun başında yapıştırılan STÜDYO DEFTERİ ÖZETİ'nden ve Projeye eklenen dosyalardan (brief, proje kartı) gelir.
+
+## 1. Rolün
+Bir endüstriyel tasarım öğrencisinin eleştirel tasarım ortağısın. Stüdyo hocası gözüyle eleştirirsin; marka ve kullanıcı araştırmacısı, CMF ve üretim danışmanı, teknik çizim ve CAD yardımcısı, sunum editörü olarak da çalışırsın. Onay makinesi değilsin.
+Hedef: projenin savunulabilir, teknik olarak inandırıcı ve iyi sunulmuş olması. Öğrenci de bu süreçte daha iyi bir tasarımcı olmalı.
+
+## 2. Önce öğrenci üretir
+- Form, konsept, grafik yön ve CMF gibi yaratıcı kararlarda önce öğrencinin eskizini ya da fikrini iste. Boş sayfaya kendi tasarımını koyma.
+- Öğrencinin işine eleştiriyle, alternatifleri kıyaslayarak, araştırmayla, teknik doğrulamayla ve belgeleyerek katkı ver.
+- Doğrudan yapabileceğin işler: kaynak araştırması, dosya envanteri, ölçü ve hacim hesabı, üretilebilirlik kontrolü, teknik çizim ve render hazırlığı, Blender/Python otomasyonu, metin düzeltme, kontrol listeleri.
+- Öğrenci açıkça "sen yap" derse yap. Ama hangi kararların öğrenciye ait kaldığını belirt.
+- Cevapta öğrencinin öğrenmesi gereken bir kavram geçtiyse cevabın sonuna KAVRAM satırı ekle (bkz. bölüm 9).
+
+## 3. Kaynaklar ve öncelik sırası
+Bilgiler çelişirse bu sırayı izle:
+1. Öğrencinin son açık talimatı
+2. Resmî brief ve teslim yönergeleri. Bunlar yetkili belgedir; ek zorunlu teslim uydurma.
+3. Hocanın ve jürinin kritikleri
+4. Güncel CAD modelleri ve son çizimler
+5. Defterde kayıtlı kararlar
+6. Önceki jüri sunumları ve eski deneyler
+7. Dış araştırma
+8. Senin önerin
+Eski konseptler yeni kararları sessizce ezmez. Belgeler arasında tarih, format ya da kapsam çelişkisi varsa açıkça söyle; birini varsayma.
+
+## 4. Dürüstlük kuralları
+- Açmadığın dosyayı incelemiş gibi yapma. Açılamayan dosyayı "erişilemedi" diye yaz.
+- Ürün adı, gramaj, iddia, sertifika, kaynak ya da ölçü uydurma. Doğrulanmamış bilgiyi [YER TUTUCU] ya da "öneri" diye etiketle.
+- Olgu ile yorumu ayır. Araştırmada kaynak URL'si ve erişim tarihi ver. Güven düzeyini yaz: yüksek / orta / düşük.
+- Her ölçünün durumunu belirt: CAD'den doğrulanmış / maketten ölçülmüş / önerilen / onay gerekli.
+- Var olmayan bir dosyayı, render'ı ya da videoyu "bitti" diye sunma. Oluşturduğun her dosyanın gerçekten var olduğunu kontrol et.
+- Render'ı maket fotoğrafı gibi gösterme. Look-like maketi çalışan bir ürün gibi anlatma.
+- Bir aracın (Blender, Python, render motoru) kurulu olduğunu varsayma; önce kontrol et. Kaynak dosyayı değiştirmeden önce sürümlü bir kopya al.
+
+## 5. Eleştiri protokolü
+Bir öneriyi yalnızca ilgili ölçütlerle değerlendir: marka uygunluğu, ürün ailesi tutarlılığı, işlev, form kalitesi, ergonomi, üretilebilirlik, malzeme, grafik tutarlılık, sunum netliği.
+Zayıf bir nokta bulduğunda şunları söyle: sorun ne, neden önemli ve hangi hedefi etkiliyor, kritik mi ikincil mi, en iyi alternatif ne, bunu doğrulamak için hangi kanıt gerekli.
+Tek bir ilişki zayıfsa her şeyi yeniden tasarlamayı önerme. İşe yarayan işi koru ve konsepti gereksiz yere genişletme.
+
+## 6. "Olmuyor" ya da "kafam karıştı" dendiğinde
+1. Onaylı proje durumunu 3–5 maddede özetle.
+2. Tutarsızlığın tam olarak nerede olduğunu göster.
+3. Formal, grafik, işlevsel ve sunum sorunlarını birbirinden ayır.
+4. En kritik 3 sorunu sırala.
+5. Sorunu çözecek en küçük müdahaleyi öner.
+6. Neyin değişmeden kalacağını söyle.
+7. Bir sonraki somut adımı ver.
+Yalnızca cesaretlendirme ya da genel beyin fırtınasıyla yetinme.
+
+## 7. Çalışma akışı
+- Her şeyi bir anda üretme. Aşamalarla ilerle: anla → denetle → araştır → geliştir → doğrula → sun.
+- Zamanı kalan güne ve brief'teki notlandırma ağırlıklarına göre dağıt. Teslime az kaldıysa yeni konsept açma; eksik zorunlu teslimleri kapat.
+- Büyük bir işte önce kısa bir plan ve ilk adımı göster, onay al, sonra devam et.
+- Bir belirsizlik işin yönünü değiştiriyorsa tek ve net bir soru sor. Değiştirmiyorsa makul bir varsayımla ilerle ve varsayımı yaz.
+
+## 8. Cevap biçimi
+- Türkçe yaz ve doğru endüstriyel tasarım terimlerini kullan. Jüri paftası metinlerini kısa, profesyonel İngilizceyle yaz.
+- Önce sonucu ya da kararı ver, sonra gerekçeyi. Tabloyu yalnızca karşılaştırma için kullan.
+- Reklam dili, boş tasarım cümleleri ve abartılı iddialar kullanma.
+- Uzun bir iş bittiğinde üç şeyi söyle: ne yapıldı, ne doğrulanmadı, sıradaki adım ne.
+
+## 9. Stüdyo Defteri ile çalışma
+Öğrenci projelerini Stüdyo Defteri uygulamasında tutar: brief, plan, görevler, eskizler, araştırma belgeleri, kritikler, kararlar ve öğrendikleri. Defter projenin güncel kaydıdır. Ayrı durum, karar günlüğü ya da kontrol listesi dosyaları tutmana gerek yok.
+- Mesaj "STÜDYO DEFTERİ ÖZETİ" ile başlıyorsa onu projenin güncel durumu kabul et. Oradaki bilgileri öğrenciye tekrar sordurma.
+- Özetle çelişen eski bir bilgiyi kullanma; çelişkiyi açıkça söyle.
+- Özette olmayan ama gerekli olan bilgiyi (ölçü, malzeme kararı vb.) uydurma; sor.
+- Konuşmada defterde kalması gereken bir şey çıktıysa cevabın en sonuna aşağıdaki bloğu ekle. Böyle bir şey yoksa bloğu hiç yazma. Her satır tek bir kayıt olsun ve başka biçim kullanma:
+
+DEFTERE EKLE
+GÖREV: <yapılacak iş, en fazla 10 kelime> | <YYYY-AA-GG ya da boş>
+KARAR: <alınan karar> — <tek cümlelik gerekçe>
+KAVRAM: <kavram adı> — <tek cümlelik açıklama>
+
+Blok kuralları:
+- KARAR satırına yalnızca öğrencinin onayladığı ya da açıkça istediği kararları yaz. Kendi önerini KARAR olarak yazma; öneri GÖREV olabilir.
+- Hocaya sorulacak bir şey varsa GÖREV olarak yaz, ör. "GÖREV: Hocaya sor: maket boyalı mı olmalı? |".
+- Blokta en fazla 6 satır olsun.`;
+
+function projectContext(p) {
+  const lines = [`STÜDYO DEFTERİ ÖZETİ (${todayISO()})`];
+  const n = p.due ? daysLeft(p.due) : null;
+  lines.push(`Proje: ${p.name || "-"}${p.course ? " · Ders: " + p.course : ""}${p.due ? ` · Teslim: ${p.due}${n === null ? "" : n < 0 ? ` (${-n} gün geçti)` : ` (${n} gün kaldı)`}` : " · Teslim tarihi girilmedi"}`);
+  const sn = p.stageNotes || {}, cur = curStage(p);
+  lines.push(`Şu anki aşama: ${stageName(cur)}${sn[cur] ? " — " + sn[cur] : ""}`);
+  if ((p.brief || "").trim()) lines.push("", "BRIEF (kısaltılmış):", p.brief.trim().slice(0, 2500) + (p.brief.length > 2500 ? " …" : ""));
+  const st = (p.plan && p.plan.stages) || [];
+  if (st.length) lines.push("", "PLAN: " + st.map(s => `${stageName(s.k)} ${s.bas}→${s.bit}`).join(" · "));
+  const ms = ((p.plan && p.plan.kilometre) || []).filter(m => m.tarih >= todayISO());
+  if (ms.length) lines.push("Sıradaki sabit tarihler: " + ms.slice(0, 4).map(m => `${m.t} (${m.tarih})`).join("; "));
+  const cl = p.checklist || [];
+  if (cl.length) lines.push("", `TESLİM LİSTESİ (${cl.filter(c => c.done).length}/${cl.length} hazır):`, ...cl.map(c => `[${c.done ? "x" : " "}] ${c.t}`));
+  const open = (p.tasks || []).filter(t => !t.done).sort((a, b) => (a.due || "9999").localeCompare(b.due || "9999"));
+  if (open.length) lines.push("", "AÇIK GÖREVLER:", ...open.slice(0, 15).map(t => `- ${t.t}${t.due ? " (" + t.due + ")" : ""}`));
+  const dec = p.decisions || [];
+  if (dec.length) lines.push("", "ONAYLI KARARLAR (yeniden eskiye):", ...dec.slice().reverse().slice(0, 15).map(d => `- [${d.date}] ${d.t}${d.why ? " — " + d.why : ""}`));
+  const crits = S.items.filter(i => i.kind === "crit").sort((a, b) => (b.date || "").localeCompare(a.date || "")).slice(0, 5);
+  if (crits.length) lines.push("", "SON KRİTİKLER (yeniden eskiye):", ...crits.map(c => `- [${c.date || "?"}]${c.by ? " " + c.by + ":" : ""} ${(c.text || "").replace(/\s+/g, " ").slice(0, 400)}${(c.actions || []).length ? " | Yapılacaklar: " + c.actions.map(a => (a.done ? "✓ " : "") + a.t).join("; ") : ""}`));
+  const notes = S.items.filter(i => i.kind === "note").map(i => i.title).filter(Boolean);
+  if (notes.length) lines.push("", "ARAŞTIRMA BELGELERİ: " + notes.join(", "));
+  const sk = S.items.filter(i => i.kind === "sketch").sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  if (sk.length) lines.push(`ESKİZLER: ${sk.length} eskiz. Son: ${sk.slice(0, 3).map(s => (s.title || "Eskiz") + (s.note ? ` (${s.note.slice(0, 80)})` : "")).join("; ")}`);
+  const lc = (LEARN.cards || []).filter(c => c.src && c.src.pid === p.id).slice(0, 8).map(c => c.t);
+  if (lc.length) lines.push("Bu projede öğrendiğim kavramlar: " + lc.join(", "));
+  lines.push("", "Bu özet defterin güncel hâli. Sorum aşağıda:", "");
+  return lines.join("\n");
+}
+function parseDefter(text) {
+  const out = [];
+  String(text || "").split(/\r?\n/).forEach(raw => {
+    const l = raw.replace(/^[\s>*\-•]+/, "").replace(/\*\*/g, "").trim();
+    const m = l.match(/^(GÖREV|GOREV|KARAR|KAVRAM)\s*:\s*(.+)$/i); if (!m) return;
+    const k = m[1].toLocaleUpperCase("tr").replace("GOREV", "GÖREV"), v = m[2].trim();
+    if (k === "GÖREV") { const [t, d] = v.split("|").map(s => s.trim()); if (t) out.push({ k, t: t.slice(0, 160), due: isoOK(d) || "" }); }
+    else { const [t, ...rest] = v.split(/\s+[—–-]\s+/); if (t) out.push({ k, t: t.trim().slice(0, 160), d: rest.join(" — ").trim().slice(0, 300) }); }
+  });
+  return out.slice(0, 12);
+}
+function claudeSheet() {
+  const p = proj(); if (!p) return;
+  const ov = document.createElement("div"); ov.className = "bridge-ov";
+  ov.innerHTML = `<div class="bridge cw" role="dialog" aria-modal="true" aria-labelledby="cwT">
+    <div class="bridge-h"><h2 id="cwT">Claude ile çalış</h2><button class="btn icon ghost" data-c="x" aria-label="Kapat">${ICON.x}</button></div>
+    <ol class="bridge-steps">
+      <li><b>Talimatı bir kez ver.</b> claude.ai'de bir <i>Proje</i> aç ve bu talimatı Projenin talimatlarına yapıştır. Brief PDF'ini de Projeye ekleyebilirsin. Bunu her proje için bir kez yapman yeter.
+        <div class="row"><button class="btn" data-c="prompt">Talimatı kopyala</button></div></li>
+      <li><b>Her oturumda özeti yapıştır.</b> Defterdeki güncel durum kopyalanır. Claude'daki Projede yeni bir sohbet aç, özeti yapıştır ve sorunu altına yaz.
+        <div class="row"><button class="btn primary" data-c="ctx">${ICON.spark}Özeti kopyala ve Claude'u aç</button></div>
+        <details><summary>Özeti göster</summary><textarea readonly class="bridge-q cw-ctx"></textarea></details></li>
+      <li><b>Cevabı deftere al.</b> Claude cevabın sonuna bir <i>DEFTERE EKLE</i> bloğu koyduysa cevabı buraya yapıştır. Görevler, kararlar ve kavramlar ayıklanır; eklenecekleri sen seçersin.
+        <textarea class="bridge-a cw-a" placeholder="Claude'un cevabını buraya yapıştır"></textarea>
+        <div class="row"><button class="btn" data-c="paste">Panodan yapıştır</button><span style="flex:1"></span><button class="btn" data-c="parse">Ayıkla</button></div>
+        <div class="cw-out"></div></li>
+    </ol></div>`;
+  document.body.appendChild(ov);
+  const ctx = $(".cw-ctx", ov), a = $(".cw-a", ov), out = $(".cw-out", ov);
+  ctx.value = projectContext(p);
+  let found = [];
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  const copy = async (txt, ta) => { try { await navigator.clipboard.writeText(txt); return true; } catch { if (ta) { ta.closest("details").open = true; ta.select(); } toast("Otomatik kopyalanamadı; metni seçip kopyala."); return false; } };
+  const LBL = { "GÖREV": "Görev", "KARAR": "Karar", "KAVRAM": "Kavram" };
+  const showFound = () => {
+    out.innerHTML = !found.length ? `<p class="ai-note">Cevapta GÖREV, KARAR ya da KAVRAM satırı bulunamadı.</p>`
+      : `<ul class="cw-list">${found.map((f, i) => `<li><label><input type="checkbox" class="chk" data-i="${i}" checked><span class="cw-k k-${f.k === "GÖREV" ? "g" : f.k === "KARAR" ? "k" : "c"}">${LBL[f.k]}</span><span class="t">${esc(f.t)}${f.d ? `<small>${esc(f.d)}</small>` : ""}${f.due ? `<small>${fmtDate(f.due + "T00:00:00")}</small>` : ""}</span></label></li>`).join("")}</ul>
+        <div class="row"><span style="flex:1"></span><button class="btn primary" data-c="apply">Deftere ekle</button></div>`;
+  };
+  ov.addEventListener("click", async e => {
+    if (e.target === ov) return close();
+    const b = e.target.closest("[data-c]"); if (!b) return;
+    const k = b.dataset.c;
+    if (k === "x") close();
+    if (k === "prompt" && await copy(WORK_PROMPT)) toast("Talimat kopyalandı. Claude'da Proje talimatlarına yapıştır.");
+    if (k === "ctx" && await copy(ctx.value, ctx)) { window.open("https://claude.ai/projects", "_blank", "noopener"); toast("Özet kopyalandı"); }
+    if (k === "paste") { try { a.value = await navigator.clipboard.readText(); } catch { toast("Pano okunamadı; uzun basıp Yapıştır'ı seç."); a.focus(); return; } found = parseDefter(a.value); showFound(); }
+    if (k === "parse") { if (!a.value.trim()) { toast("Önce cevabı yapıştır."); a.focus(); return; } found = parseDefter(a.value); showFound(); }
+    if (k === "apply") {
+      const pick = found.filter((f, i) => $(`[data-i="${i}"]`, out)?.checked); if (!pick.length) { toast("Hiçbiri seçili değil."); return; }
+      const cur = proj(); if (!cur) return;
+      const tasks = pick.filter(f => f.k === "GÖREV").map(f => ({ id: rid(), t: f.t, due: f.due, done: false, phase: curStage(cur) }));
+      const decs = pick.filter(f => f.k === "KARAR").map(f => ({ id: rid(), t: f.t, why: f.d, date: todayISO() }));
+      const cons = pick.filter(f => f.k === "KAVRAM");
+      const patch = {};
+      if (tasks.length) patch.tasks = (cur.tasks || []).concat(tasks);
+      if (decs.length) patch.decisions = (cur.decisions || []).concat(decs);
+      try {
+        if (Object.keys(patch).length) await updateProject(cur.id, patch);
+        for (const c of cons) await learnCol().doc(rid()).set({ t: c.t, d: c.d, src: { pid: cur.id, from: "Claude oturumu" }, date: todayISO(), createdAt: now() });
+      } catch { toast("Kaydedilemedi."); return; }
+      close();
+      toast([tasks.length && `${tasks.length} görev`, decs.length && `${decs.length} karar`, cons.length && `${cons.length} kavram`].filter(Boolean).join(", ") + " deftere eklendi");
+      if (S.route.tab === "plan") renderPlan();
+    }
+  });
+}
+function renderDecisions() {
+  const box = $("#decisions"), p = proj(); if (!box || !p) return;
+  const ds = (p.decisions || []).slice().reverse();
+  box.innerHTML = ds.length ? `<section class="sec"><div class="sec-head"><h2>Kararlar</h2><span class="eyebrow">${ds.length}</span></div>
+    <ul class="dec-list">${ds.map(d => `<li><div><b>${esc(d.t)}</b>${d.why ? `<p>${esc(d.why)}</p>` : ""}<small>${fmtDate(d.date + "T00:00:00")}</small></div><button class="btn sm icon ghost" data-act="dec-del" data-id="${d.id}" aria-label="Kararı sil">${ICON.x}</button></li>`).join("")}</ul></section>` : "";
+}
+
 /* ---------- projects ---------- */
 async function newProject(extra) {
   const id = rid();
@@ -2123,6 +2328,7 @@ function planShell() {
       <div class="brief-foot" id="briefFoot"></div>
     </section>
     <div id="planBody"></div>
+    <div id="decisions"></div>
     <section class="sec"><div class="sec-head"><h2>Görevler</h2><button class="btn sm ghost" data-act="cal-open" title="Jürileri ve görevleri iPhone takvimine aktar">${ICON_CAL}Takvime ekle</button></div>
       <div id="calPanel" hidden></div>
       <form class="addtask" id="addTask"><input class="inp" id="taskText" placeholder="Görev ekle, ör. Köpük maket 1:1" maxlength="200" autocomplete="off"><input type="date" class="inp" id="taskDue" aria-label="Görev tarihi"><button class="btn" type="submit">${ICON.plus}Ekle</button></form>
@@ -2183,6 +2389,7 @@ function renderPlan() {
         ${checklistHTML(p)}`;
     } else host.innerHTML = `<div class="plan-hint">${ICON.spark}<div><b>Brief'ten plan çıkar</b><p>Brief'i yapıştır ya da PDF / fotoğrafını yükle ve <b>Claude ile plan çıkar</b>'a bas. Claude brief'teki jüri tarihlerini ve teslim listesini bulur, aşamaları bunlara göre böler, görevler, araştırma soruları ve konsept kriterleri önerir. Sen onaylamadan hiçbir şey eklenmez.</p></div></div>`;
   }
+  renderDecisions();
   renderTasks();
 }
 const planLoading = () => `<div class="plan-hint loading-hint"><span class="spin"></span><div><b>Claude brief'ini okuyor…</b><p>Aşamaları ve görevleri teslim tarihine göre yerleştiriyor. Bu 20–40 saniye sürebilir.</p></div></div>`;
@@ -2938,6 +3145,8 @@ const ACT = {
   "sk-iter": el => newIteration(el.dataset.id),
   "paper-sketch": () => $("#paperPick")?.click(),
   "ideas-make": () => makeIdeas(),
+  "claude-work": () => claudeSheet(),
+  "dec-del": el => { const p = proj(); if (!p) return; updateProject(p.id, { decisions: (p.decisions || []).filter(d => d.id !== el.dataset.id) }).then(() => renderDecisions()); },
   "idea-note": el => ideaNote(el.dataset.id),
   "open-last-sketch": () => { const s = LAST.sk; if (!s) return; go({ view: "project", pid: s.pid, tab: "eskiz" }); if (S.items.some(i => i.id === s.id)) openSketch(s.id); else S.openAfter = s.id; },
   "prac-start": el => startPractice(el.dataset.ex),
