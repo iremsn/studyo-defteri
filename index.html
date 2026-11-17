@@ -653,6 +653,32 @@ h1,h2,h3{font-family:var(--f-display);font-stretch:112%;text-wrap:balance;margin
 <input type="file" id="noteImgPick" accept="image/*" hidden>
 
 <script>
+/* Boot watchdog (plain old JS on purpose, so it runs even if the main script fails to load in an older browser).
+   If the app hasn't started after 10 s, show why instead of "Defter açılıyor…" forever. */
+(function () {
+  var errs = [];
+  window.addEventListener("error", function (e) { errs.push((e.message || "hata") + (e.lineno ? " (satır " + e.lineno + ")" : "")); });
+  window.addEventListener("unhandledrejection", function (e) { var r = e.reason; errs.push(String((r && (r.message || r.code)) || r)); });
+  window.sdClearCache = function () {
+    var p = [];
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) p.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); }));
+    if (window.caches) p.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }));
+    Promise.all(p).catch(function () {}).then(function () { location.reload(); });
+  };
+  setTimeout(function () {
+    var v = document.getElementById("view");
+    if (!v || !v.querySelector(".loading")) return;
+    var box = document.createElement("div");
+    box.className = "banner preview"; box.style.flexDirection = "column";
+    box.innerHTML = "<b>Defter açılamadı.</b><span>Sayfayı yenile. Düzelmezse \"Önbelleği temizle\"ye bas; kayıtların silinmez.</span>";
+    if (errs.length) { var c = document.createElement("code"); c.style.cssText = "font-size:12px;white-space:pre-wrap"; c.textContent = errs.slice(0, 3).join("\n") + "\n" + navigator.userAgent; box.appendChild(c); }
+    var row = document.createElement("div"); row.style.cssText = "display:flex;gap:8px;margin-top:6px";
+    row.innerHTML = '<button class="btn primary" onclick="location.reload()">Yenile</button><button class="btn" onclick="sdClearCache()">Önbelleği temizle</button>';
+    box.appendChild(row); v.innerHTML = ""; v.appendChild(box);
+  }, 10000);
+})();
+</script>
+<script>
 "use strict";
 /* ---------- helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s);
@@ -1032,11 +1058,13 @@ const LocalDownloads = {
     return { status: "saved" };
   },
 };
+// Some Safari versions never answer indexedDB.open; never let that block the app.
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms))]);
 async function initStore() {
   DB = LocalDB; UID = "local"; MODE = "local"; ASSETS = LocalAssets; DOWNLOADS = LocalDownloads; SAMPLE = makeSample();
-  try { await IDB.open(); } catch { IDB_OK = false; }
-  await LocalDB.load();
-  await LocalAssets.load();
+  try { await withTimeout(IDB.open(), 4000); } catch { IDB_OK = false; }
+  try { await withTimeout(LocalDB.load(), 6000); } catch { IDB_OK = false; }
+  try { await withTimeout(LocalAssets.load(), 8000); } catch {}
 }
 
 function subscribeProjects() {
