@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Stüdyo Defteri</title>
 <meta name="description" content="Endüstriyel tasarım projeleri için eskiz, araştırma ve planlama defteri.">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F5F2FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C0A10" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Stüdyo">
@@ -19,10 +19,10 @@
 /* Apple-style tokens: iOS grouped background, white cards, hairlines, system blue for actions,
    the orange crosshair stays as the brand mark. */
 :root{
-  --bg:#F2F2F7; --surface:#FFFFFF; --raised:#FFFFFF; --ink:#1D1D1F; --ink-2:#6E6E73; --ink-3:#8E8E93;
-  --line:#E5E5EA; --line-2:#D1D1D6; --accent:#007AFF; --accent-ink:#FFFFFF; --accent-soft:#E5F1FF;
-  --brand:#FF6A13; --fill:rgba(120,120,128,.12); --fill-2:rgba(120,120,128,.08); --glass:rgba(249,249,251,.78);
-  --blue:#007AFF; --ok:#248A3D; --warn:#C93400; --danger:#D70015; --board:#E5E5EA; --paper:#FFFFFF;
+  --bg:#F5F2FA; --surface:#FFFFFF; --raised:#FFFFFF; --ink:#1E1A24; --ink-2:#6C6577; --ink-3:#8F889A;
+  --line:#ECE6F4; --line-2:#D9D0E6; --accent:#8944D9; --accent-ink:#FFFFFF; --accent-soft:#F1E8FC;
+  --brand:#8944D9; --fill:rgba(124,92,168,.12); --fill-2:rgba(124,92,168,.07); --glass:rgba(250,247,253,.78);
+  --blue:#6E56CF; --ok:#248A3D; --warn:#C93400; --danger:#D70015; --board:#E9E4F1; --paper:#FFFFFF;
   --shadow:0 1px 2px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.06);
   --r-card:16px; --r-ctl:10px;
   --f-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI Variable Display","Segoe UI",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -31,16 +31,16 @@
   --f-code:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#000000; --surface:#1C1C1E; --raised:#2C2C2E; --ink:#F5F5F7; --ink-2:#AEAEB2; --ink-3:#8E8E93;
-  --line:#38383A; --line-2:#48484A; --accent:#0A84FF; --accent-ink:#FFFFFF; --accent-soft:#0B2A4D;
-  --brand:#FF7A2E; --fill:rgba(120,120,128,.24); --fill-2:rgba(120,120,128,.16); --glass:rgba(28,28,30,.78);
-  --blue:#0A84FF; --ok:#30D158; --warn:#FF9F0A; --danger:#FF453A; --board:#000000; --paper:#FFFFFF;
+  --bg:#0C0A10; --surface:#1C1922; --raised:#2A2632; --ink:#F6F3FA; --ink-2:#B3ABBF; --ink-3:#8F889A;
+  --line:#37323F; --line-2:#474151; --accent:#9B51E0; --accent-ink:#FFFFFF; --accent-soft:#2C1F42;
+  --brand:#C9A2F7; --fill:rgba(150,120,190,.22); --fill-2:rgba(150,120,190,.13); --glass:rgba(28,25,34,.78);
+  --blue:#A78BFA; --ok:#30D158; --warn:#FF9F0A; --danger:#FF453A; --board:#000000; --paper:#FFFFFF;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#000000; --surface:#1C1C1E; --raised:#2C2C2E; --ink:#F5F5F7; --ink-2:#AEAEB2; --ink-3:#8E8E93;
-  --line:#38383A; --line-2:#48484A; --accent:#0A84FF; --accent-ink:#FFFFFF; --accent-soft:#0B2A4D;
-  --brand:#FF7A2E; --fill:rgba(120,120,128,.24); --fill-2:rgba(120,120,128,.16); --glass:rgba(28,28,30,.78);
-  --blue:#0A84FF; --ok:#30D158; --warn:#FF9F0A; --danger:#FF453A; --board:#000000; --paper:#FFFFFF;
+  --bg:#0C0A10; --surface:#1C1922; --raised:#2A2632; --ink:#F6F3FA; --ink-2:#B3ABBF; --ink-3:#8F889A;
+  --line:#37323F; --line-2:#474151; --accent:#9B51E0; --accent-ink:#FFFFFF; --accent-soft:#2C1F42;
+  --brand:#C9A2F7; --fill:rgba(150,120,190,.22); --fill-2:rgba(150,120,190,.13); --glass:rgba(28,25,34,.78);
+  --blue:#A78BFA; --ok:#30D158; --warn:#FF9F0A; --danger:#FF453A; --board:#000000; --paper:#FFFFFF;
   --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.35); color-scheme:dark}
 
 html,body{height:100%;margin:0}
@@ -707,8 +707,8 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .tabs{border-bottom:0;background:var(--fill);border-radius:10px;padding:2px;gap:2px;display:inline-flex;max-width:100%}
 .tab{border-bottom:0;margin:0;padding:6px 14px;border-radius:8px;color:var(--ink);font-size:14px;font-weight:500}
 .tab[aria-selected="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04);font-weight:600}
-:root[data-theme="dark"] .tab[aria-selected="true"]{background:#636366}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{background:#636366}}
+:root[data-theme="dark"] .tab[aria-selected="true"]{background:#4A4356}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tab[aria-selected="true"]{background:#4A4356}}
 .tab .n{font:500 12px/1 var(--f-body)}
 /* inputs */
 .inp,.brief,.learn-form input,.set-card input[type=text],.set-card input[type=password],.set-card select,.bridge textarea,.bridge input.f{border:0;background:var(--fill-2);border-radius:var(--r-ctl);box-shadow:inset 0 0 0 1px transparent}
@@ -825,7 +825,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const rid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-5);
 const now = () => Date.now();
 const debounce = (fn, ms) => { let t; const d = (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; d.flush = (...a) => { clearTimeout(t); return fn(...a); }; d.cancel = () => clearTimeout(t); return d; };
-const COLORS = ["#E0530C", "#2B63C6", "#2F8A55", "#8A4FBF", "#C29A0E", "#1B1F21"];
+const COLORS = ["#8944D9", "#2B63C6", "#2F8A55", "#E0530C", "#C29A0E", "#1B1F21"];
 const fmtDate = d => new Date(d).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
 const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
 const addDaysISO = n => { const d = new Date(); d.setDate(d.getDate() + n); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
@@ -2903,12 +2903,12 @@ function drawGuides(c, g, vp) {
     if (g === "p1") {
       c.beginPath(); for (let y = 100; y < H; y += 100) { c.moveTo(0, y); c.lineTo(W, y); } for (let x = 150; x < W; x += 150) { c.moveTo(x, 0); c.lineTo(x, H); } c.stroke();
       c.strokeStyle = "rgba(43,99,198,.2)"; fanFrom(c, vp.v2, 140);
-      c.fillStyle = "rgba(224,83,12,.8)"; c.beginPath(); c.arc(vp.v2.x, vp.v2.y, 9, 0, Math.PI * 2); c.fill();
+      c.fillStyle = "rgba(137,68,217,.8)"; c.beginPath(); c.arc(vp.v2.x, vp.v2.y, 9, 0, Math.PI * 2); c.fill();
     } else {
       fanFrom(c, vp.v1, 150); fanFrom(c, vp.v2, 150);
       if (g === "p3") { c.strokeStyle = "rgba(43,99,198,.12)"; fanFrom(c, vp.v3, 170); }
     }
-    c.strokeStyle = "rgba(224,83,12,.4)"; c.lineWidth = 3; c.beginPath(); c.moveTo(0, hy); c.lineTo(W, hy); c.stroke();
+    c.strokeStyle = "rgba(137,68,217,.4)"; c.lineWidth = 3; c.beginPath(); c.moveTo(0, hy); c.lineTo(W, hy); c.stroke();
     c.fillStyle = "rgba(43,99,198,.55)"; c.font = "500 26px 'IBM Plex Mono', monospace"; c.fillText("UFUK ÇİZGİSİ · GÖZ SEVİYESİ", 24, hy - 14);
   }
   c.restore();
@@ -2955,8 +2955,8 @@ function drawHand(c, g, sel) {
   rrPath(c, -42, -105, 85, 105, 18);
   [[-30, -100, 72, 19], [-9, -103, 80, 19], [12, -100, 74, 18], [31, -92, 58, 16]].forEach(([x, y, l, w]) => rrPath(c, x - w / 2, y - l + w / 2, w, l, w / 2));
   c.save(); c.translate(-38, -38); c.rotate(-0.75); rrPath(c, -12, -64, 24, 70, 12); c.restore();
-  c.fillStyle = sel ? "rgba(224,83,12,.12)" : "rgba(43,99,198,.10)"; c.fill();
-  c.lineWidth = .3; c.strokeStyle = sel ? "rgba(224,83,12,.5)" : "rgba(43,99,198,.35)"; c.stroke();
+  c.fillStyle = sel ? "rgba(137,68,217,.12)" : "rgba(43,99,198,.10)"; c.fill();
+  c.lineWidth = .3; c.strokeStyle = sel ? "rgba(137,68,217,.5)" : "rgba(43,99,198,.35)"; c.stroke();
   c.restore();
   c.save(); c.fillStyle = "rgba(43,99,198,.6)"; c.font = "500 24px 'IBM Plex Mono', monospace"; c.textAlign = "center";
   c.fillText("EL · 185 mm (ORT. YETİŞKİN)", g.c.x, g.c.y + 40); c.restore();
@@ -3137,7 +3137,7 @@ class Sketch {
     c.save(); c.beginPath(); c.rect(0, 0, W, H); c.clip(); c.lineCap = "round";
     for (const g of this.guides) {
       const sel = this.gEdit && g.id === this.gSel;
-      c.strokeStyle = sel ? "rgba(224,83,12,.75)" : "rgba(43,99,198,.5)"; c.lineWidth = 3; c.setLineDash([]);
+      c.strokeStyle = sel ? "rgba(137,68,217,.75)" : "rgba(43,99,198,.5)"; c.lineWidth = 3; c.setLineDash([]);
       if (g.type === "box" || g.type === "cyl") {
         const k = boxGeo(g, vp);
         if (g.type === "cyl") c.globalAlpha = .35;
@@ -3710,7 +3710,7 @@ class Practice {
       c.strokeStyle = "rgba(27,31,33,.85)"; c.lineWidth = 2; polyPath(c, t.q, true); c.stroke();
       c.strokeStyle = "rgba(43,99,198,.35)"; c.lineWidth = 1.2; c.setLineDash([6, 6]); seg(c, t.q[0], t.q[2]); seg(c, t.q[1], t.q[3]); c.setLineDash([]);
     }
-    if (fb) { c.strokeStyle = "rgba(224,83,12,.85)"; c.lineWidth = 3; if (this.ex === "line") { c.beginPath(); c.moveTo(t.A.x, t.A.y); c.lineTo(t.B.x, t.B.y); c.stroke(); } else { polyPath(c, t.poly, true); c.stroke(); } }
+    if (fb) { c.strokeStyle = "rgba(137,68,217,.85)"; c.lineWidth = 3; if (this.ex === "line") { c.beginPath(); c.moveTo(t.A.x, t.A.y); c.lineTo(t.B.x, t.B.y); c.stroke(); } else { polyPath(c, t.poly, true); c.stroke(); } }
     const p = this.cur || this.last; if (p && p.length) { c.strokeStyle = "#1b1f21"; c.lineWidth = 2.6; c.beginPath(); p.forEach((q, i) => i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y)); c.stroke(); }
   }
   pt(e) { const r = this.cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
