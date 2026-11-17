@@ -767,6 +767,15 @@ h1,h2,h3{font-stretch:normal;letter-spacing:-.02em}
 .tc-sk small{font-size:12.5px;color:var(--ink-3)}
 /* claude work sheet + decisions */
 .cw-ctx{min-height:160px}
+.cw-card .card-h h2{display:flex;align-items:center;gap:6px}
+.cw-focus{margin:0 0 10px;font-size:13.5px;color:var(--ink-2);line-height:1.45}
+.cw-card #cwGoal{width:100%;margin-bottom:10px}
+.cw-steps{display:flex;gap:8px;flex-wrap:wrap}
+.cw-steps .btn{flex:1 1 200px;justify-content:center}
+.cw-steps .btn.done{color:var(--ink-2)}
+.cw-how{margin:10px 0 0}
+.cw-back{margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+.bridge.cw>p.muted{margin:0 0 10px}
 .cw-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
 .cw-list label{display:flex;gap:8px;align-items:flex-start;background:var(--fill);border-radius:10px;padding:8px 10px;cursor:pointer}
 .cw-list .t{flex:1;min-width:0;font-size:14px}
@@ -1443,7 +1452,7 @@ function projectShell(p) {
   return `${previewBanner()}<div class="proj-head">
     <div class="ph-main"><input class="ptitle" id="ptitle" aria-label="Proje adı" maxlength="80">
       <button class="pmeta-line" id="pmetaLine" data-act="toggle-pinfo" aria-expanded="false" aria-controls="pinfo"></button></div>
-    <div class="ph-acts"><button class="btn sm" data-act="claude-work" title="Claude'a proje özetini ver, cevabını deftere al">${ICON.spark}<span>Claude</span></button><button class="btn sm ghost" data-act="export-project" title="Her şeyi klasörlere ayrılmış .zip olarak indir">${ICON.dl}<span>İndir</span></button><button class="btn sm ghost danger" data-act="delete-project" id="delProj" title="Projeyi sil" aria-label="Projeyi sil">${ICON.trash}</button></div>
+    <div class="ph-acts"><button class="btn sm ghost" data-act="export-project" title="Her şeyi klasörlere ayrılmış .zip olarak indir">${ICON.dl}<span>İndir</span></button><button class="btn sm ghost danger" data-act="delete-project" id="delProj" title="Projeyi sil" aria-label="Projeyi sil">${ICON.trash}</button></div>
     <div class="pmeta" id="pinfo" hidden>
       <div class="field"><label for="pcourse">Ders</label><input class="inp" id="pcourse" list="courseList" placeholder="ör. ID 302 Stüdyo" maxlength="60" style="width:190px"></div>
       <div class="field"><label for="pdue">Teslim</label><input type="date" class="inp" id="pdue"></div>
@@ -1955,7 +1964,7 @@ function renderTasks() {
    and the "DEFTERE EKLE" block of Claude's reply read back as tasks, decisions and concepts. */
 const WORK_PROMPT = `# STÜDYO ÇALIŞMA TALİMATI — Endüstriyel Tasarım
 
-Bu metin her projede aynı kalır. Projeye özel bilgiler her oturumun başında yapıştırılan STÜDYO DEFTERİ ÖZETİ'nden ve Projeye eklenen dosyalardan (brief, proje kartı) gelir.
+Bu metin her projede aynı kalır. Projeye özel bilgiler hemen altındaki STÜDYO DEFTERİ ÖZETİ'nden ve varsa ekli proje paketinden gelir.
 
 ## 1. Rolün
 Bir endüstriyel tasarım öğrencisinin eleştirel tasarım ortağısın. Stüdyo hocası gözüyle eleştirirsin; marka ve kullanıcı araştırmacısı, CMF ve üretim danışmanı, teknik çizim ve CAD yardımcısı, sunum editörü olarak da çalışırsın. Onay makinesi değilsin.
@@ -2021,6 +2030,7 @@ Yalnızca cesaretlendirme ya da genel beyin fırtınasıyla yetinme.
 - Mesaj "STÜDYO DEFTERİ ÖZETİ" ile başlıyorsa onu projenin güncel durumu kabul et. Oradaki bilgileri öğrenciye tekrar sordurma.
 - Özetle çelişen eski bir bilgiyi kullanma; çelişkiyi açıkça söyle.
 - Özette olmayan ama gerekli olan bilgiyi (ölçü, malzeme kararı vb.) uydurma; sor.
+- Ekte proje paketi (zip) varsa önce içeriğini kısaca listele ve açamadığın dosyayı söyle. Pakette defterdeki kayıtlar var; CAD/Blender dosyaları, renderlar ve maket fotoğrafları ayrıca eklenir.
 - Konuşmada defterde kalması gereken bir şey çıktıysa cevabın en sonuna aşağıdaki bloğu ekle. Böyle bir şey yoksa bloğu hiç yazma. Her satır tek bir kayıt olsun ve başka biçim kullanma:
 
 DEFTERE EKLE
@@ -2039,7 +2049,7 @@ function projectContext(p) {
   lines.push(`Proje: ${p.name || "-"}${p.course ? " · Ders: " + p.course : ""}${p.due ? ` · Teslim: ${p.due}${n === null ? "" : n < 0 ? ` (${-n} gün geçti)` : ` (${n} gün kaldı)`}` : " · Teslim tarihi girilmedi"}`);
   const sn = p.stageNotes || {}, cur = curStage(p);
   lines.push(`Şu anki aşama: ${stageName(cur)}${sn[cur] ? " — " + sn[cur] : ""}`);
-  if ((p.brief || "").trim()) lines.push("", "BRIEF (kısaltılmış):", p.brief.trim().slice(0, 2500) + (p.brief.length > 2500 ? " …" : ""));
+  if ((p.brief || "").trim()) lines.push("", "BRIEF:", p.brief.trim().slice(0, 8000) + (p.brief.length > 8000 ? " … (tamamı pakette)" : ""));
   const st = (p.plan && p.plan.stages) || [];
   if (st.length) lines.push("", "PLAN: " + st.map(s => `${stageName(s.k)} ${s.bas}→${s.bit}`).join(" · "));
   const ms = ((p.plan && p.plan.kilometre) || []).filter(m => m.tarih >= todayISO());
@@ -2058,8 +2068,87 @@ function projectContext(p) {
   if (sk.length) lines.push(`ESKİZLER: ${sk.length} eskiz. Son: ${sk.slice(0, 3).map(s => (s.title || "Eskiz") + (s.note ? ` (${s.note.slice(0, 80)})` : "")).join("; ")}`);
   const lc = (LEARN.cards || []).filter(c => c.src && c.src.pid === p.id).slice(0, 8).map(c => c.t);
   if (lc.length) lines.push("Bu projede öğrendiğim kavramlar: " + lc.join(", "));
-  lines.push("", "Bu özet defterin güncel hâli. Sorum aşağıda:", "");
   return lines.join("\n");
+}
+/* What Claude should focus on at each stage; the student's own goal for the session goes on top. */
+const STAGE_FOCUS = {
+  arastirma: ["Araştırma", "Marka, kullanıcı ve rakip araştırması; kaynakları doğrulama; bulguları tasarım kriterlerine çevirme."],
+  konsept: ["Konsept", "Eskizlerimi ve konseptlerimi kriterlere göre eleştirme ve kıyaslama; seçimi gerekçelendirme. Benim yerime konsept üretme, benim eskizlerimden ilerle."],
+  gelistirme: ["Geliştirme ve modelleme", "Formu geliştirme ve CAD/Blender modelini denetleme (birim, ölçek, hiyerarşi); ölçüler, ergonomi, CMF ve üretilebilirlik (et kalınlığı, kalıp çıkma açısı, montaj); teknik çizime hazırlık."],
+  maket: ["Maket", "1:1 look-like maket stratejisi: hangi parça 3B baskı, hangisi başka yöntem; yüzey hazırlığı ve boya; maket fotoğrafı çekim listesi; etkileşim videosu planı."],
+  final: ["Final teslim", "Resmî teslim listesine göre eksikleri kontrol etme; pafta akışı ve İngilizce pafta metinleri; teknik çizimler; maket fotoğrafları; video. Yeni konsept açma."],
+};
+function handoffMessage(p, goal) {
+  const [nm, focus] = STAGE_FOCUS[curStage(p)] || STAGE_FOCUS.arastirma;
+  return `${WORK_PROMPT}
+
+---
+
+${projectContext(p)}
+
+BU OTURUMUN ODAĞI (${nm} aşaması): ${focus}
+${S.cwPack === p.id ? `\nEKTE: "${safeName(p.name || "Proje")}_Claude_paketi.zip" — brief, süreç, kritikler ve araştırma PDF'leri, eskiz PNG'leri ve pano görselleri. Önce içeriğini kısaca listele ve açamadığın dosya varsa söyle.\n` : ""}
+BUGÜN YAPMAK İSTEDİĞİM: ${(goal || "").trim() || "(yazmadım; özete ve aşamaya bakıp önce neyle başlamamız gerektiğini öner ve bana sor)"}`;
+}
+async function claudePack() {
+  const p = proj(); if (!p || PROG.busy) return;
+  PROG.busy = true; prog("Paket hazırlanıyor…");
+  try {
+    if (NOTE.dirty) await saveNote.flush();
+    await loadScript(CDN.zip);
+    const zip = new window.JSZip();
+    S.cwPack = p.id;
+    zip.file("00_CLAUDE_OKU.md", handoffMessage(p, S.cwGoal));
+    if ((p.brief || "").trim()) zip.file("01_BRIEF.txt", p.brief);
+    await addProjectToZip(zip, p, new Set(["00_CLAUDE_OKU.md", "01_BRIEF.txt"]));
+    prog("Paketleniyor…");
+    const blob = await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } });
+    prog(); await saveFile(safeName(p.name || "Proje") + "_Claude_paketi.zip", blob);
+    renderClaudeCard();
+  } catch (e) { prog(); S.cwPack = null; toast("Paket hazırlanamadı: " + (e.message || "bilinmeyen hata")); }
+  finally { PROG.busy = false; }
+}
+async function claudeGo() {
+  const p = proj(); if (!p) return;
+  const msg = handoffMessage(p, S.cwGoal);
+  let ok = false; try { await navigator.clipboard.writeText(msg); ok = true; } catch {}
+  if (!ok) { replySheet(msg); return; }
+  window.open("https://claude.ai/new", "_blank", "noopener");
+  toast(S.cwPack === p.id ? "Mesaj kopyalandı. Claude'da yapıştır, zip'i ekle, gönder." : "Mesaj kopyalandı. Claude'da yapıştır ve gönder.");
+}
+function renderClaudeCard() {
+  const box = $("#cwCard"), p = proj(); if (!box || !p) return;
+  if (box.contains(document.activeElement)) return;
+  const [nm, focus] = STAGE_FOCUS[curStage(p)] || STAGE_FOCUS.arastirma, packed = S.cwPack === p.id;
+  box.innerHTML = `<section class="card cw-card">
+    <div class="card-h"><h2>Claude'da devam et</h2><span class="eyebrow">${esc(nm)}</span></div>
+    <p class="cw-focus">${esc(focus)}</p>
+    <input class="inp" id="cwGoal" value="${esc(S.cwGoal || "")}" oninput="S.cwGoal=this.value" placeholder="Bugün ne yapmak istiyorsun? (isteğe bağlı)" maxlength="300" autocomplete="off">
+    <div class="cw-steps">
+      <button class="btn${packed ? " done" : ""}" data-act="cw-pack">${packed ? "✓ Paket indirildi" : `${ICON.dl}<span>1 · Proje paketini indir</span>`}</button>
+      <button class="btn primary" data-act="cw-go">${ICON.spark}<span>${packed ? "2 · " : ""}Mesajı kopyala, Claude'u aç</span></button>
+    </div>
+    <p class="ai-note cw-how">Mesajda çalışma talimatı, projenin özeti ve bu aşamanın odağı var. Claude'da mesajı yapıştır${packed ? ", zip'i sürükle" : ""} ve gönder. Paket isteğe bağlı: eskizlerini ve belgelerini de görmesini istersen indir. Zip yüklenmezse içindeki PDF ve PNG'leri tek tek ekle.</p>
+    <div class="cw-back"><button class="linkbtn" data-act="cw-reply">Claude'un cevabını deftere al →</button></div>
+  </section>`;
+}
+function replySheet(fallbackMsg) {
+  const ov = document.createElement("div"); ov.className = "bridge-ov";
+  ov.innerHTML = `<div class="bridge cw" role="dialog" aria-modal="true" aria-labelledby="cwT">
+    <div class="bridge-h"><h2 id="cwT">${fallbackMsg ? "Mesajı kopyala" : "Cevabı deftere al"}</h2><button class="btn icon ghost" data-c="x" aria-label="Kapat">${ICON.x}</button></div>
+    ${fallbackMsg ? `<p class="muted">Otomatik kopyalanamadı. Metni seçip kopyala, sonra claude.ai'de yeni sohbete yapıştır.</p><textarea readonly class="bridge-q cw-ctx"></textarea>
+      <div class="row"><span style="flex:1"></span><a class="btn primary" href="https://claude.ai/new" target="_blank" rel="noopener">Claude'u aç</a></div>`
+    : `<p class="muted">Claude cevabın sonuna bir <i>DEFTERE EKLE</i> bloğu koyduysa cevabı buraya yapıştır. Görevler, kararlar ve kavramlar ayıklanır; eklenecekleri sen seçersin.</p>
+      <textarea class="bridge-a cw-a" placeholder="Claude'un cevabını buraya yapıştır"></textarea>
+      <div class="row"><button class="btn" data-c="paste">Panodan yapıştır</button><span style="flex:1"></span><button class="btn primary" data-c="parse">Ayıkla</button></div>
+      <div class="cw-out"></div>`}
+  </div>`;
+  document.body.appendChild(ov);
+  if (fallbackMsg) { const q = $(".cw-ctx", ov); q.value = fallbackMsg; setTimeout(() => q.select(), 50); }
+  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
+  const onKey = e => { if (e.key === "Escape") close(); };
+  document.addEventListener("keydown", onKey);
+  bindReply(ov, $(".cw-a", ov), $(".cw-out", ov), close);
 }
 function parseDefter(text) {
   const out = [];
@@ -2070,32 +2159,10 @@ function parseDefter(text) {
     if (k === "GÖREV") { const [t, d] = v.split("|").map(s => s.trim()); if (t) out.push({ k, t: t.slice(0, 160), due: isoOK(d) || "" }); }
     else { const [t, ...rest] = v.split(/\s+[—–-]\s+/); if (t) out.push({ k, t: t.trim().slice(0, 160), d: rest.join(" — ").trim().slice(0, 300) }); }
   });
-  return out.slice(0, 12);
+  return out.slice(0, 24);
 }
-function claudeSheet() {
-  const p = proj(); if (!p) return;
-  const ov = document.createElement("div"); ov.className = "bridge-ov";
-  ov.innerHTML = `<div class="bridge cw" role="dialog" aria-modal="true" aria-labelledby="cwT">
-    <div class="bridge-h"><h2 id="cwT">Claude ile çalış</h2><button class="btn icon ghost" data-c="x" aria-label="Kapat">${ICON.x}</button></div>
-    <ol class="bridge-steps">
-      <li><b>Talimatı bir kez ver.</b> claude.ai'de bir <i>Proje</i> aç ve bu talimatı Projenin talimatlarına yapıştır. Brief PDF'ini de Projeye ekleyebilirsin. Bunu her proje için bir kez yapman yeter.
-        <div class="row"><button class="btn" data-c="prompt">Talimatı kopyala</button></div></li>
-      <li><b>Her oturumda özeti yapıştır.</b> Defterdeki güncel durum kopyalanır. Claude'daki Projede yeni bir sohbet aç, özeti yapıştır ve sorunu altına yaz.
-        <div class="row"><button class="btn primary" data-c="ctx">${ICON.spark}Özeti kopyala ve Claude'u aç</button></div>
-        <details><summary>Özeti göster</summary><textarea readonly class="bridge-q cw-ctx"></textarea></details></li>
-      <li><b>Cevabı deftere al.</b> Claude cevabın sonuna bir <i>DEFTERE EKLE</i> bloğu koyduysa cevabı buraya yapıştır. Görevler, kararlar ve kavramlar ayıklanır; eklenecekleri sen seçersin.
-        <textarea class="bridge-a cw-a" placeholder="Claude'un cevabını buraya yapıştır"></textarea>
-        <div class="row"><button class="btn" data-c="paste">Panodan yapıştır</button><span style="flex:1"></span><button class="btn" data-c="parse">Ayıkla</button></div>
-        <div class="cw-out"></div></li>
-    </ol></div>`;
-  document.body.appendChild(ov);
-  const ctx = $(".cw-ctx", ov), a = $(".cw-a", ov), out = $(".cw-out", ov);
-  ctx.value = projectContext(p);
+function bindReply(ov, a, out, close) {
   let found = [];
-  const close = () => { ov.remove(); document.removeEventListener("keydown", onKey); };
-  const onKey = e => { if (e.key === "Escape") close(); };
-  document.addEventListener("keydown", onKey);
-  const copy = async (txt, ta) => { try { await navigator.clipboard.writeText(txt); return true; } catch { if (ta) { ta.closest("details").open = true; ta.select(); } toast("Otomatik kopyalanamadı; metni seçip kopyala."); return false; } };
   const LBL = { "GÖREV": "Görev", "KARAR": "Karar", "KAVRAM": "Kavram" };
   const showFound = () => {
     out.innerHTML = !found.length ? `<p class="ai-note">Cevapta GÖREV, KARAR ya da KAVRAM satırı bulunamadı.</p>`
@@ -2107,8 +2174,6 @@ function claudeSheet() {
     const b = e.target.closest("[data-c]"); if (!b) return;
     const k = b.dataset.c;
     if (k === "x") close();
-    if (k === "prompt" && await copy(WORK_PROMPT)) toast("Talimat kopyalandı. Claude'da Proje talimatlarına yapıştır.");
-    if (k === "ctx" && await copy(ctx.value, ctx)) { window.open("https://claude.ai/projects", "_blank", "noopener"); toast("Özet kopyalandı"); }
     if (k === "paste") { try { a.value = await navigator.clipboard.readText(); } catch { toast("Pano okunamadı; uzun basıp Yapıştır'ı seç."); a.focus(); return; } found = parseDefter(a.value); showFound(); }
     if (k === "parse") { if (!a.value.trim()) { toast("Önce cevabı yapıştır."); a.focus(); return; } found = parseDefter(a.value); showFound(); }
     if (k === "apply") {
@@ -2283,7 +2348,7 @@ function planEnd(p, k) { const s = ((p.plan || {}).stages || []).find(x => x.k =
 async function setProjectStage(k) {
   const p = proj(); if (!p || !stageName(k)) return;
   const dates = { ...(p.stageDates || {}) }; if (!dates[k]) dates[k] = todayISO();
-  await updateProject(p.id, { stage: k, stageDates: dates }); renderProcess();
+  await updateProject(p.id, { stage: k, stageDates: dates }); renderProcess(); renderClaudeCard();
   toast(`Proje “${stageName(k)}” aşamasında`);
 }
 async function setItemStage(id, k) {
@@ -2328,6 +2393,7 @@ function planShell() {
       <div class="brief-foot" id="briefFoot"></div>
     </section>
     <div id="planBody"></div>
+    <div id="cwCard"></div>
     <div id="decisions"></div>
     <section class="sec"><div class="sec-head"><h2>Görevler</h2><button class="btn sm ghost" data-act="cal-open" title="Jürileri ve görevleri iPhone takvimine aktar">${ICON_CAL}Takvime ekle</button></div>
       <div id="calPanel" hidden></div>
@@ -2389,6 +2455,7 @@ function renderPlan() {
         ${checklistHTML(p)}`;
     } else host.innerHTML = `<div class="plan-hint">${ICON.spark}<div><b>Brief'ten plan çıkar</b><p>Brief'i yapıştır ya da PDF / fotoğrafını yükle ve <b>Claude ile plan çıkar</b>'a bas. Claude brief'teki jüri tarihlerini ve teslim listesini bulur, aşamaları bunlara göre böler, görevler, araştırma soruları ve konsept kriterleri önerir. Sen onaylamadan hiçbir şey eklenmez.</p></div></div>`;
   }
+  renderClaudeCard();
   renderDecisions();
   renderTasks();
 }
@@ -3145,7 +3212,9 @@ const ACT = {
   "sk-iter": el => newIteration(el.dataset.id),
   "paper-sketch": () => $("#paperPick")?.click(),
   "ideas-make": () => makeIdeas(),
-  "claude-work": () => claudeSheet(),
+  "cw-pack": () => claudePack(),
+  "cw-go": () => claudeGo(),
+  "cw-reply": () => replySheet(),
   "dec-del": el => { const p = proj(); if (!p) return; updateProject(p.id, { decisions: (p.decisions || []).filter(d => d.id !== el.dataset.id) }).then(() => renderDecisions()); },
   "idea-note": el => ideaNote(el.dataset.id),
   "open-last-sketch": () => { const s = LAST.sk; if (!s) return; go({ view: "project", pid: s.pid, tab: "eskiz" }); if (S.items.some(i => i.id === s.id)) openSketch(s.id); else S.openAfter = s.id; },
